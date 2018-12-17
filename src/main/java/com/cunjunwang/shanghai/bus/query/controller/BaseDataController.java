@@ -3,12 +3,15 @@ package com.cunjunwang.shanghai.bus.query.controller;
 import com.cunjunwang.shanghai.bus.query.entity.ResultData;
 import com.cunjunwang.shanghai.bus.query.model.dto.BusLineNumberDTO;
 import com.cunjunwang.shanghai.bus.query.model.dto.BusSidDTO;
+import com.cunjunwang.shanghai.bus.query.model.dto.BusStationDTO;
 import com.cunjunwang.shanghai.bus.query.service.BusService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 基础数据查询接口
@@ -33,9 +36,15 @@ public class BaseDataController {
     @RequestMapping(value = "/getBusSID", method = RequestMethod.POST)
     @ApiOperation(value = "获取公交线路SID", notes = "获取公交线路SID")
     public ResultData<BusSidDTO> getBusSID(
-            @ApiParam(name = "busLineNumberDTO", value = "传递要查询的公交线路", required = true)
+            @ApiParam(name = "busLineNumberDTO", value = "传递要查询的公交线路")
             @RequestBody BusLineNumberDTO busLineNumberDTO) {
         return new ResultData<>(ResultData.SUCCESS, "", "获取公交线路SID成功", busService.getBusSID(busLineNumberDTO));
+    }
+
+    @RequestMapping(value = "/getBusStationsBySid", method = RequestMethod.GET)
+    @ApiOperation(value = "根据公交线路SID获取站点信息", notes = "根据公交线路SID获取站点信息")
+    public ResultData<List<BusStationDTO>> getBusStationsBySid(String sid) {
+        return new ResultData<>(ResultData.SUCCESS, "", "获取公交线路站点信息成功", busService.getBusStationsBySid(sid));
     }
 
 }
