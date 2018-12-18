@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by CunjunWang on 2018-12-17.
@@ -25,14 +25,14 @@ public class HtmlParserUtil {
      * @param responseHtml
      * @return
      */
-    public List<BusStationDTO> getStationList(String responseHtml) {
+    public Map<String, BusStationDTO> getStationMap(String responseHtml) {
 
         logger.info("开始解析html, 获取公交站点信息");
 
         Document document = Jsoup.parse(responseHtml);
         Elements elements = document.body().getElementsByClass("station");
 
-        List<BusStationDTO> busStationDTOList = new ArrayList<>();
+        Map<String, BusStationDTO> busStationMap = new ConcurrentHashMap<>();
 
         for(Element element : elements) {
             BusStationDTO busStationDTO = new BusStationDTO();
@@ -40,11 +40,11 @@ public class HtmlParserUtil {
             String stationName = element.getElementsByClass("name").text();
             busStationDTO.setLineSequenceId(lineSequenceId);
             busStationDTO.setStationName(stationName);
-            busStationDTOList.add(busStationDTO);
+            busStationMap.put(lineSequenceId ,busStationDTO);
         }
 
         logger.info("获取公交站点信息, 该线路共{}站", elements.size());
 
-        return busStationDTOList;
+        return busStationMap;
     }
 }

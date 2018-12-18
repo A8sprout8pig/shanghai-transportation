@@ -19,16 +19,16 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.List;
+import java.util.Map;
 
 
 /**
  * Created by CunjunWang on 2018/12/17.
  */
 @Service
-public class BusService {
+public class BusBaseDataService {
 
-    private static final Logger logger = LoggerFactory.getLogger(BusService.class);
+    private static final Logger logger = LoggerFactory.getLogger(BusBaseDataService.class);
 
     @Autowired
     private RestTemplate restTemplate;
@@ -86,14 +86,14 @@ public class BusService {
      * @param sid
      * @return
      */
-    public List<BusStationDTO> getBusStationsBySid(String sid) {
+    public Map<String, BusStationDTO> getBusStationsBySid(String sid) {
         logger.info("开始查询SID为[{}]的公交站点信息", sid);
         // 发送请求
         String fullUrl = String.format(getStationsURL, sid);
         logger.info("查询URL: {}", fullUrl);
         String responseHtml = restTemplate.getForObject(fullUrl, String.class);
         logger.info("上海发布平台响应参数[{}]", responseHtml);
-        return htmlParserUtil.getStationList(responseHtml);
+        return htmlParserUtil.getStationMap(responseHtml);
     }
 
     /**
@@ -103,7 +103,7 @@ public class BusService {
      * @return
      */
     public BusCurrentStopVO getStop(GetBusStopDTO getBusStopDTO) {
-        logger.info("开始获取公交实时站点信息");
+        logger.info("开始获取公交实时站点信息, 请求参数[{}]", getBusStopDTO.toString());
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
         headers.add("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE);
@@ -118,13 +118,20 @@ public class BusService {
         String response = restTemplate.postForObject(getStopURL, entity, String.class);
         logger.info("上海发布平台响应参数: {}", JSON.parse(response));
         // 封装出参
-        JSONObject restObject = ((JSONArray) JSON.parse(response)).getJSONObject(0);
         BusCurrentStopVO busCurrentStopVO = new BusCurrentStopVO();
-        busCurrentStopVO.setCode(restObject.getJSONObject("@attributes").getString("cod"));
-        busCurrentStopVO.setStopDis(restObject.getString("stopdis"));
-        busCurrentStopVO.setDistance(restObject.getString("distance"));
-        busCurrentStopVO.setLicense(restObject.getString("terminal"));
-        busCurrentStopVO.setTime(restObject.getString("time"));
+        try {
+            JSONObject restObject = ((JSONArray) JSON.parse(response)).getJSONObject(0);
+            busCurrentStopVO.setCode(restObject.getJSONObject("@attributes").getString("cod"));
+            busCurrentStopVO.setStopDis(restObject.getString("stopdis"));
+            busCurrentStopVO.setDistance(restObject.getString("distance"));
+            busCurrentStopVO.setLicense(restObject.getString("terminal"));
+            busCurrentStopVO.setTime(restObject.getString("time"));
+        } catch (Exception e) {
+            String error = JSON.parseObject(response).getString("error");
+            if("-1".equals(error)) {
+                busCurrentStopVO.setLicense("等待发车");
+            }
+        }
         return busCurrentStopVO;
     }
 }
