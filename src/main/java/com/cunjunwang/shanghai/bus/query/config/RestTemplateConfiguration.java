@@ -65,6 +65,7 @@ public class RestTemplateConfiguration {
             converterList.remove(converterTarget);
         }
         converterList.add(1, new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        converterList.add(2, new BusHttpMessageConverter());
 
         return restTemplate;
     }
