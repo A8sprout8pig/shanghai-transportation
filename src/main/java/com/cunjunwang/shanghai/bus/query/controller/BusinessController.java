@@ -7,6 +7,7 @@ package com.cunjunwang.shanghai.bus.query.controller;
 import com.cunjunwang.shanghai.bus.query.entity.ResultData;
 import com.cunjunwang.shanghai.bus.query.model.dto.GetBusCurrentStopDTO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusCurrentStopVO;
+import com.cunjunwang.shanghai.bus.query.model.vo.BusDetailVO;
 import com.cunjunwang.shanghai.bus.query.service.BusQueryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -37,5 +38,13 @@ public class BusinessController {
         return new ResultData<>(ResultData.SUCCESS, "", "查询公交实时到站信息成功",
                 busQueryService.queryBusCurrentStopInfo(getBusCurrentStopDTO));
     }
+
+    @RequestMapping(value = "/queryBusDetail", method = RequestMethod.POST)
+    @ApiOperation(value = "查询公交介绍信息", notes = "查询公交介绍信息")
+    public ResultData<BusDetailVO> queryBusDetail(String busLineNumber) {
+        return new ResultData<>(ResultData.SUCCESS, "", "查询公交介绍信息成功",
+                busQueryService.queryBusDetail(busLineNumber));
+    }
+
 
 }
