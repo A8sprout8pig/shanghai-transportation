@@ -16,10 +16,16 @@ import java.io.Serializable;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(value = "GetBusStationDTO",description = "获取公交站点信息DTO")
-public class GetBusStationDTO implements Serializable {
+@ApiModel(value = "GetBusStopDTO",description = "获取公交实时信息接口传参DTO")
+public class GetBusStopDTO implements Serializable {
 
     private static final long serialVersionUID = -1L;
+
+    @ApiModelProperty(value = "stopType", name = "0-上行, 1-下行")
+    private String stopType;
+
+    @ApiModelProperty(value = "stopId", name = "公交站点序号")
+    private String stopId;
 
     @ApiModelProperty(value = "sid", name = "公交线路SID")
     private String sid;

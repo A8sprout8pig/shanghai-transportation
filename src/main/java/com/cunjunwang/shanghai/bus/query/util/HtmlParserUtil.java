@@ -20,13 +20,14 @@ public class HtmlParserUtil {
 
     private static final Logger logger = LoggerFactory.getLogger(HtmlParserUtil.class);
 
-
     /**
      * 解析HTML, 获取站点信息
      * @param responseHtml
      * @return
      */
     public List<BusStationDTO> getStationList(String responseHtml) {
+
+        logger.info("开始解析html, 获取公交站点信息");
 
         Document document = Jsoup.parse(responseHtml);
         Elements elements = document.body().getElementsByClass("station");
@@ -41,6 +42,8 @@ public class HtmlParserUtil {
             busStationDTO.setStationName(stationName);
             busStationDTOList.add(busStationDTO);
         }
+
+        logger.info("获取公交站点信息, 该线路共{}站", elements.size());
 
         return busStationDTOList;
     }
