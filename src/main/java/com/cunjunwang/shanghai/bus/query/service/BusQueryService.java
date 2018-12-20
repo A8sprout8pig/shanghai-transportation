@@ -1,9 +1,7 @@
 package com.cunjunwang.shanghai.bus.query.service;
 
-import com.cunjunwang.shanghai.bus.query.model.dto.BusLineNumberDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.BusSidDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.GetBusCurrentStopDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.GetBusStopDTO;
+import com.cunjunwang.shanghai.bus.query.constant.Constant;
+import com.cunjunwang.shanghai.bus.query.model.dto.*;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusDetailVO;
 import com.cunjunwang.shanghai.bus.query.util.HtmlParserUtil;
@@ -33,8 +31,6 @@ public class BusQueryService {
 
     @Value("${com.cunjunwang.shanghai.bus.query.getStationsUrl}")
     private String getStationsURL;
-
-    private static String busLineIdNum = "%s路";
 
     /**
      * 查询公交实时到站信息
@@ -68,9 +64,12 @@ public class BusQueryService {
         // 根据路线号获得Sid
         String sid = this.getBusSidByLineNumber(busLineNumber);
         logger.info("获取sid: {}", sid);
-        busBaseDataService.getBusStationsBySid(sid);
+        GetBusStationsDTO getBusStationsDTO = new GetBusStationsDTO();
+        getBusStationsDTO.setSid(sid);
+        getBusStationsDTO.setStopType(Constant.UP_GOING);
+        busBaseDataService.getBusStationsBySid(getBusStationsDTO);
         // 发送请求
-        String fullUrl = String.format(getStationsURL, sid);
+        String fullUrl = String.format(getStationsURL, sid, Constant.UP_GOING);
         String responseHtml = restTemplate.getForObject(fullUrl, String.class);
         BusDetailVO busDetailVO = htmlParserUtil.getBusIntroInfo(responseHtml);
         busDetailVO.setLineNum(busLineNumber);
@@ -87,7 +86,7 @@ public class BusQueryService {
      */
     private String getBusSidByLineNumber(String busLineNumber) {
         BusLineNumberDTO busLineNumberDTO = new BusLineNumberDTO();
-        busLineNumberDTO.setIdnum(String.format(busLineIdNum, busLineNumber));
+        busLineNumberDTO.setIdnum(busLineNumber);
         BusSidDTO busSidDTO = busBaseDataService.getBusSID(busLineNumberDTO);
         return busSidDTO.getSid();
     }

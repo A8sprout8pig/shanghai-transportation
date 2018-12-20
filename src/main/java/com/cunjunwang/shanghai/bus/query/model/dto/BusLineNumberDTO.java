@@ -19,7 +19,7 @@ public class BusLineNumberDTO implements Serializable {
 
     public static final long serialVersionUID = -1L;
 
-    @ApiModelProperty(value = "要查询的公交线路名，需要加\"路\"字", name = "idnum")
+    @ApiModelProperty(value = "要查询的公交线路名", name = "idnum")
     private String idnum;
 
 }

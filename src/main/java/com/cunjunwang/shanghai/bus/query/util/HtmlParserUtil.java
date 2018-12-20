@@ -11,8 +11,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by CunjunWang on 2018-12-17.
@@ -27,25 +27,25 @@ public class HtmlParserUtil {
      * @param responseHtml
      * @return
      */
-    public Map<String, BusStationDTO> getStationMap(String responseHtml) {
+    public List<BusStationDTO> getStationList(String responseHtml) {
 
         logger.info("开始解析html, 获取公交站点信息");
         Document document = Jsoup.parse(responseHtml);
         Elements elements = document.body().getElementsByClass("station");
 
-        Map<String, BusStationDTO> busStationMap = new ConcurrentHashMap<>();
+        List<BusStationDTO> busStationList = new ArrayList<>();
         for(Element element : elements) {
             BusStationDTO busStationDTO = new BusStationDTO();
             String lineSequenceId = element.getElementsByClass("num").text();
             String stationName = element.getElementsByClass("name").text();
             busStationDTO.setLineSequenceId(lineSequenceId);
             busStationDTO.setStationName(stationName);
-            busStationMap.put(lineSequenceId ,busStationDTO);
+            busStationList.add(busStationDTO);
         }
 
         logger.info("获取公交站点信息, 该线路共{}站", elements.size());
 
-        return busStationMap;
+        return busStationList;
     }
 
     /**

@@ -1,10 +1,7 @@
 package com.cunjunwang.shanghai.bus.query.controller;
 
 import com.cunjunwang.shanghai.bus.query.entity.ResultData;
-import com.cunjunwang.shanghai.bus.query.model.dto.BusLineNumberDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.BusSidDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.BusStationDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.GetBusStopDTO;
+import com.cunjunwang.shanghai.bus.query.model.dto.*;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.bus.query.service.BusBaseDataService;
 import io.swagger.annotations.Api;
@@ -13,7 +10,7 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * 基础数据查询接口
@@ -45,8 +42,11 @@ public class BaseDataController {
 
     @RequestMapping(value = "/getBusStationsBySid", method = RequestMethod.GET)
     @ApiOperation(value = "根据公交线路SID获取站点信息", notes = "根据公交线路SID获取站点信息")
-    public ResultData<Map<String, BusStationDTO>> getBusStationsBySid(String sid) {
-        return new ResultData<>(ResultData.SUCCESS, "", "获取公交线路站点信息成功", busBaseDataService.getBusStationsBySid(sid));
+    public ResultData<List<BusStationDTO>> getBusStationsBySid(@RequestParam String sid, @RequestParam String stopType) {
+        GetBusStationsDTO getBusStationsDTO = new GetBusStationsDTO();
+        getBusStationsDTO.setStopType(stopType);
+        getBusStationsDTO.setSid(sid);
+        return new ResultData<>(ResultData.SUCCESS, "", "获取公交线路站点信息成功", busBaseDataService.getBusStationsBySid(getBusStationsDTO));
     }
 
     @RequestMapping(value = "/getStop", method = RequestMethod.POST)

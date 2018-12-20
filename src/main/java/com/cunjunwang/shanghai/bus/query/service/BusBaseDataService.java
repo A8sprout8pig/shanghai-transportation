@@ -3,23 +3,22 @@ package com.cunjunwang.shanghai.bus.query.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.cunjunwang.shanghai.bus.query.model.dto.BusLineNumberDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.BusSidDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.BusStationDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.GetBusStopDTO;
+import com.cunjunwang.shanghai.bus.query.model.dto.*;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.bus.query.util.HtmlParserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.*;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Map;
+import java.util.List;
 
 
 /**
@@ -52,7 +51,7 @@ public class BusBaseDataService {
      */
     public BusSidDTO getBusSID(BusLineNumberDTO busLineNumberDTO) {
         String idNum = busLineNumberDTO.getIdnum();
-        logger.info("开始查询公交[{}]的实时信息", idNum);
+        logger.info("开始查询公交[{}]的SID", idNum);
         // 设置请求头
         HttpHeaders headers = new HttpHeaders();
         MediaType mediaType = MediaType.parseMediaType("application/json; charset=UTF-8");
@@ -60,7 +59,7 @@ public class BusBaseDataService {
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
         // 封装参数
         String requestBody = JSON.toJSONString(busLineNumberDTO);
-        logger.info("查询公交[{}]的实时信息请求参数[{}]", idNum, requestBody);
+        logger.info("查询公交[{}]SID的请求参数[{}]", idNum, requestBody);
         HttpEntity entity = new HttpEntity(requestBody, headers);
         // 发送参数
         JSONObject restObject = restTemplate.postForObject(getSidURL, entity, JSONObject.class);
@@ -72,7 +71,7 @@ public class BusBaseDataService {
             BusSidDTO busSidDTO = new BusSidDTO();
             busSidDTO.setMes(mes);
             busSidDTO.setSid(sid);
-            logger.info("[{}]实时信息请求结果[{}]", idNum, busSidDTO.toString());
+            logger.info("公交[{}]SID请求结果[{}]", idNum, busSidDTO.toString());
             return busSidDTO;
         } else {
             logger.warn("请求结果为空");
@@ -83,17 +82,19 @@ public class BusBaseDataService {
     /**
      * 根据公交SID获取站点信息
      *
-     * @param sid
+     * @param getBusStationsDTO
      * @return
      */
-    public Map<String, BusStationDTO> getBusStationsBySid(String sid) {
+    public List<BusStationDTO> getBusStationsBySid(GetBusStationsDTO getBusStationsDTO) {
+        String sid = getBusStationsDTO.getSid();
+        String stopType = getBusStationsDTO.getStopType();
         logger.info("开始查询SID为[{}]的公交站点信息", sid);
         // 发送请求
-        String fullUrl = String.format(getStationsURL, sid);
+        String fullUrl = String.format(getStationsURL, sid, stopType);
         logger.info("查询URL: {}", fullUrl);
         String responseHtml = restTemplate.getForObject(fullUrl, String.class);
         logger.info("上海发布平台响应参数[{}]", responseHtml);
-        return htmlParserUtil.getStationMap(responseHtml);
+        return htmlParserUtil.getStationList(responseHtml);
     }
 
     /**
