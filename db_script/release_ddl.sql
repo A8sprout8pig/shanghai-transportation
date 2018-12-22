@@ -23,3 +23,16 @@ create table if not exists bus_line
 		primary key (id)
 )
 comment '公交线路信息';
+
+create table if not exists  bus_line_exception
+(
+  id bigint auto_increment comment '主键',
+  bus_line varchar(200) null comment '公交线路',
+  exception_reason varchar(200) null comment '异常原因',
+  create_time datetime default current_timestamp null comment '创建时间',
+  is_del int default 0 null comment '逻辑删除标志符(是否已处理) 0-未删除(未处理) 1-已删除(已处理)',
+  update_time datetime null comment '更新时间(处理时间)',
+  constraint bus_line_exception_pk
+    primary key (id)
+)
+  comment '公交数据维护异常表, 用于日志记录和批处理';

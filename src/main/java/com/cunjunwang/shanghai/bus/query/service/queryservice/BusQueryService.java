@@ -1,9 +1,10 @@
-package com.cunjunwang.shanghai.bus.query.service;
+package com.cunjunwang.shanghai.bus.query.service.queryservice;
 
 import com.cunjunwang.shanghai.bus.query.constant.Constant;
 import com.cunjunwang.shanghai.bus.query.model.dto.*;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusDetailVO;
+import com.cunjunwang.shanghai.bus.query.service.dataservice.BusBaseDataService;
 import com.cunjunwang.shanghai.bus.query.util.HtmlParserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -8,7 +8,7 @@ import com.cunjunwang.shanghai.bus.query.entity.ResultData;
 import com.cunjunwang.shanghai.bus.query.model.dto.GetBusCurrentStopDTO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusDetailVO;
-import com.cunjunwang.shanghai.bus.query.service.BusQueryService;
+import com.cunjunwang.shanghai.bus.query.service.queryservice.BusQueryService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
