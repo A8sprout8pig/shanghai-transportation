@@ -1,5 +1,8 @@
 package com.cunjunwang.shanghai.bus.query.util;
 
+import com.cunjunwang.shanghai.bus.query.constant.Constant;
+import com.cunjunwang.shanghai.bus.query.constant.ErrConstant;
+import com.cunjunwang.shanghai.bus.query.exception.ShanghaiBusException;
 import com.cunjunwang.shanghai.bus.query.model.dto.BusDirectionInfoDTO;
 import com.cunjunwang.shanghai.bus.query.model.dto.BusStationDTO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusDetailVO;
@@ -24,6 +27,7 @@ public class HtmlParserUtil {
 
     /**
      * 解析HTML, 获取站点信息
+     *
      * @param responseHtml
      * @return
      */
@@ -34,7 +38,7 @@ public class HtmlParserUtil {
         Elements elements = document.body().getElementsByClass("station");
 
         List<BusStationDTO> busStationList = new ArrayList<>();
-        for(Element element : elements) {
+        for (Element element : elements) {
             BusStationDTO busStationDTO = new BusStationDTO();
             String lineSequenceId = element.getElementsByClass("num").text();
             String stationName = element.getElementsByClass("name").text();
@@ -50,28 +54,50 @@ public class HtmlParserUtil {
 
     /**
      * 解析HTML, 获取公交介绍信息
+     *
      * @param responseHtml
      * @return
      */
     public BusDetailVO getBusIntroInfo(String responseHtml) {
         logger.info("开始解析html, 获取公交基础信息");
+        BusDetailVO busDetailVO = new BusDetailVO();
+
         Element body = Jsoup.parse(responseHtml).body();
         Elements elements = body.getElementsByClass("upgoing");
+        if (elements == null || elements.isEmpty()) {
+            logger.error("上行方向信息不存在!");
+            throw new ShanghaiBusException(ErrConstant.UNKONWN_BUS_LINE, "线路信息不存在!");
+        }
         Element upGoing = elements.get(0);
         Element downGoing = elements.get(1);
+
         // 构造上行方向信息
         BusDirectionInfoDTO upGoingInfo = this.buildBusDirectionInfo(upGoing);
-        // 构造下行方向信息
-        BusDirectionInfoDTO downGoingInfo = this.buildBusDirectionInfo(downGoing);
-        // 构造返回结果
-        BusDetailVO busDetailVO = new BusDetailVO();
+        // 下行方向信息
+        BusDirectionInfoDTO downGoingInfo = null;
+
+        if(upGoingInfo.getStartStation().equals(upGoingInfo.getTerminalStation())) {
+            busDetailVO.setBusDirectionType(Constant.CIRCULAR_DIRECTION);
+        } else {
+            busDetailVO.setBusDirectionType(Constant.DOUBLE_DIRECTION);
+        }
+        if(downGoing == null) {
+            logger.error("下行方向信息不存在!");
+            busDetailVO.setBusDirectionType(Constant.SINGLE_DIRECTION);
+        } else {
+            // 构造下行方向信息
+            downGoingInfo = this.buildBusDirectionInfo(downGoing);
+        }
+
         busDetailVO.setUpDirectionInfo(upGoingInfo);
         busDetailVO.setDownDirectionInfo(downGoingInfo);
+
         return busDetailVO;
     }
 
     /**
      * 构造公交单向基础信息
+     *
      * @param directionElement
      * @return
      */

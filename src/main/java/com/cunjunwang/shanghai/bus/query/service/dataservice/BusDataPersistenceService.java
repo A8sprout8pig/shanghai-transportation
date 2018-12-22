@@ -1,6 +1,9 @@
 package com.cunjunwang.shanghai.bus.query.service.dataservice;
 
 import com.cunjunwang.shanghai.bus.query.constant.Constant;
+import com.cunjunwang.shanghai.bus.query.constant.ErrConstant;
+import com.cunjunwang.shanghai.bus.query.constant.ErrMsgConstant;
+import com.cunjunwang.shanghai.bus.query.exception.ShanghaiBusException;
 import com.cunjunwang.shanghai.bus.query.model.dto.*;
 import com.cunjunwang.shanghai.bus.query.model.po.BusLine;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusDetailVO;
@@ -40,11 +43,13 @@ public class BusDataPersistenceService {
     private BusDataPersistExceptionNotifyService busDataPersistExceptionNotifyService;
 
     public BusLineDataVO getBusLineDataByLineNumber(String lineNumber) {
-        logger.info("开始查询公交[{}]持久化信息", lineNumber);
+
         if (lineNumber == null) {
-            logger.warn("线路参数为空");
-            return null;
+            logger.error("线路参数为空");
+            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
         }
+
+        logger.info("开始查询公交[{}]持久化信息", lineNumber);
 
         BusLine busLine = busLineDBService.selectExactByBusLineNumber(lineNumber);
         if (busLine != null) {
@@ -53,7 +58,8 @@ public class BusDataPersistenceService {
             return busLineDataVO;
         } else {
             logger.warn("线路信息[{}]不存在", lineNumber);
-            return null;
+            throw new ShanghaiBusException(ErrConstant.UNKONWN_BUS_LINE,
+                    String.format(ErrMsgConstant.UNKONWN_BUS_LINE_MSG, lineNumber));
         }
     }
 
@@ -65,12 +71,18 @@ public class BusDataPersistenceService {
      */
     public Boolean saveBusLineDataByLineNumber(String lineNumber) {
 
+        if (lineNumber == null) {
+            logger.error("线路参数为空");
+            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+        }
+
         logger.info("开始持久化存储线路[{}]信息", lineNumber);
 
         BusLine originBusLine = busLineDBService.selectExactByBusLineNumber(lineNumber);
         if (originBusLine != null) {
-            logger.info("线路[{}]信息已存在", lineNumber);
-            return false;
+            logger.info("数据库中线路[{}]信息已存在", lineNumber);
+            throw new ShanghaiBusException(ErrConstant.DUPLICATE_BUS_LINE_INFO_ERR,
+                    String.format(ErrMsgConstant.DUPLICATE_BUS_LINE_INFO_ERR_MSG, lineNumber));
         }
 
         // 获取SID
@@ -87,46 +99,53 @@ public class BusDataPersistenceService {
         getUpGoingBusStationsDTO.setStopType(Constant.UP_GOING);
         List<BusStationDTO> upGoingStations = busBaseDataService.getBusStationsBySid(getUpGoingBusStationsDTO);
         if (upGoingStations == null || upGoingStations.isEmpty()) {
-            logger.error("线路[{}]不存在!", lineNumber);
-            return false;
+            logger.warn("线路信息[{}]不存在", lineNumber);
+            throw new ShanghaiBusException(ErrConstant.UNKONWN_BUS_LINE,
+                    String.format(ErrMsgConstant.UNKONWN_BUS_LINE_MSG, lineNumber));
         }
 
-        // 基础信息
-        BusDetailVO busDetailVO = busQueryService.queryBusDetail(lineNumber);
-        BusLine newBusLine = new BusLine();
-        newBusLine.setBusLine(lineNumber);
-        newBusLine.setCreateTime(new Date());
-        newBusLine.setIsDel(Constant.NOT_DEL);
-        logger.info("线路[{}]基础信息设置完毕", lineNumber);
+        try {
+            // 基础信息
+            BusDetailVO busDetailVO = busQueryService.queryBusDetail(lineNumber);
+            BusLine newBusLine = new BusLine();
+            newBusLine.setBusLine(lineNumber);
+            newBusLine.setCreateTime(new Date());
+            newBusLine.setIsDel(Constant.NOT_DEL);
+            logger.info("线路[{}]基础信息设置完毕", lineNumber);
 
-        // 上行信息
-        BusDirectionInfoDTO upGoingData = busDetailVO.getUpDirectionInfo();
-        newBusLine.setUpGoingFirstTime(upGoingData.getFirstTime());
-        newBusLine.setUpGoingLastTime(upGoingData.getLastTime());
-        newBusLine.setUpGoingStartStation(upGoingData.getStartStation());
-        newBusLine.setUpGoingTerminalStation(upGoingData.getTerminalStation());
-        Integer upGoingStationCount = upGoingStations.size();
-        newBusLine.setUpGoingStationCount(upGoingStationCount);
-        logger.info("线路[{}]上行方向信息设置完毕", lineNumber);
+            // 上行信息
+            BusDirectionInfoDTO upGoingData = busDetailVO.getUpDirectionInfo();
+            newBusLine.setUpGoingFirstTime(upGoingData.getFirstTime());
+            newBusLine.setUpGoingLastTime(upGoingData.getLastTime());
+            newBusLine.setUpGoingStartStation(upGoingData.getStartStation());
+            newBusLine.setUpGoingTerminalStation(upGoingData.getTerminalStation());
+            Integer upGoingStationCount = upGoingStations.size();
+            newBusLine.setUpGoingStationCount(upGoingStationCount);
+            logger.info("线路[{}]上行方向信息设置完毕", lineNumber);
 
-        // 下行信息
-        BusDirectionInfoDTO downGoingData = busDetailVO.getDownDirectionInfo();
-        newBusLine.setDownGoingFirstTime(downGoingData.getFirstTime());
-        newBusLine.setDownGoingLastTime(downGoingData.getLastTime());
-        newBusLine.setDownGoingStartStation(downGoingData.getStartStation());
-        newBusLine.setDownGoingTerminalStation(downGoingData.getTerminalStation());
-        GetBusStationsDTO getDownGoingBusStationsDTO = new GetBusStationsDTO();
-        getDownGoingBusStationsDTO.setSid(sid);
-        getDownGoingBusStationsDTO.setStopType(Constant.DOWN_GOING);
-        List<BusStationDTO> downGoingStations = busBaseDataService.getBusStationsBySid(getDownGoingBusStationsDTO);
-        Integer downGoingStationCount = downGoingStations == null ? 0 : downGoingStations.size();
-        newBusLine.setDownGoingStationCount(downGoingStationCount);
-        logger.info("线路[{}]下行方向信息设置完毕", lineNumber);
+            // 下行信息
+            BusDirectionInfoDTO downGoingData = busDetailVO.getDownDirectionInfo();
+            newBusLine.setDownGoingFirstTime(downGoingData.getFirstTime());
+            newBusLine.setDownGoingLastTime(downGoingData.getLastTime());
+            newBusLine.setDownGoingStartStation(downGoingData.getStartStation());
+            newBusLine.setDownGoingTerminalStation(downGoingData.getTerminalStation());
+            GetBusStationsDTO getDownGoingBusStationsDTO = new GetBusStationsDTO();
+            getDownGoingBusStationsDTO.setSid(sid);
+            getDownGoingBusStationsDTO.setStopType(Constant.DOWN_GOING);
+            List<BusStationDTO> downGoingStations = busBaseDataService.getBusStationsBySid(getDownGoingBusStationsDTO);
+            Integer downGoingStationCount = downGoingStations == null ? 0 : downGoingStations.size();
+            newBusLine.setDownGoingStationCount(downGoingStationCount);
+            logger.info("线路[{}]下行方向信息设置完毕", lineNumber);
 
-        // 写入数据库
-        busLineDBService.insertByPrimatyKeySelective(newBusLine);
-        logger.info("线路[{}]信息写入数据库完毕", lineNumber);
-        return true;
+            // 写入数据库
+            busLineDBService.insertByPrimatyKeySelective(newBusLine);
+            logger.info("线路[{}]信息写入数据库完毕", lineNumber);
+            return true;
+        } catch (Exception e) {
+            logger.error("持久化存储线路[{}]信息失败", lineNumber, e);
+            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
+        }
+
     }
 
     /**
@@ -136,15 +155,16 @@ public class BusDataPersistenceService {
      * @return
      */
     public Map<String, Boolean> batchSaveBusLineDataByLineNumbers(BatchSaveBusInfoDTO batchSaveBusInfoDTO) {
+
         if (batchSaveBusInfoDTO == null) {
             logger.error("批量存储公交基础信息失败, 未传入有效数据!");
-            return null;
+            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
         }
 
         List<String> lineNumbers = batchSaveBusInfoDTO.getLineNumbers();
         if (lineNumbers == null || lineNumbers.isEmpty()) {
             logger.error("批量存储公交基础信息失败, 传入列表无效!");
-            return null;
+            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
         }
 
         logger.info("开始批量存储公交基础信息, 共[{}]条数据", lineNumbers.size());
@@ -156,19 +176,10 @@ public class BusDataPersistenceService {
         Integer failCounter = 0;
 
         for (String lineNumber : lineNumbers) {
-            try {
-                logger.info("开始存储第[{}]条数据, 线路[{}]", counter, lineNumber);
-                Boolean result = this.saveBusLineDataByLineNumber(lineNumber);
-                resultMap.put(lineNumber, result);
+            logger.info("开始处理第[{}]条数据", counter);
+            if(this.saveOrNotifyException(lineNumber)) {
                 successCounter++;
-            } catch (Exception e) {
-                logger.error("存储第[{}]条数据异常, 线路[{}], 开始异常处理流程", counter, lineNumber);
-                // 封装参数
-                BusDataExceptionDTO busDataExceptionDTO = new BusDataExceptionDTO();
-                busDataExceptionDTO.setBusLineNumber(lineNumber);
-                busDataExceptionDTO.setExceptionReason(e.getMessage());
-                // 发送通知
-                busDataPersistExceptionNotifyService.forward(busDataExceptionDTO);
+            } else {
                 failCounter++;
             }
             counter++;
@@ -178,5 +189,35 @@ public class BusDataPersistenceService {
                 lineNumbers.size(), counter, successCounter, failCounter);
 
         return resultMap;
+    }
+
+
+    /**
+     * 存储线路数据或发送异常信息
+     * @param busLineNumber
+     * @return
+     */
+    public Boolean saveOrNotifyException(String busLineNumber) {
+        logger.info("开始存储线路[{}]的信息", busLineNumber);
+        // 存储线路数据
+        try {
+            // 若存储方法没有异常, 一定返回true
+            return saveBusLineDataByLineNumber(busLineNumber);
+        }
+        // 若获取异常, 分情况判断
+        catch (Exception e) {
+            logger.warn("处理异常信息失败, 线路[{}]", busLineNumber);
+            // 若异常是因为该线路已经存储过, 不重新添加记录
+            if (e instanceof ShanghaiBusException && !String.format(ErrMsgConstant.DUPLICATE_BUS_LINE_INFO_ERR_MSG, busLineNumber)
+                    .equals(((ShanghaiBusException) e).getErrMsg())) {
+                // 封装参数
+                BusDataExceptionDTO busDataExceptionDTO = new BusDataExceptionDTO();
+                busDataExceptionDTO.setBusLineNumber(busLineNumber);
+                busDataExceptionDTO.setExceptionReason(((ShanghaiBusException) e).getErrMsg());
+                // 发送通知
+                busDataPersistExceptionNotifyService.forward(busDataExceptionDTO);
+            }
+            return false;
+        }
     }
 }

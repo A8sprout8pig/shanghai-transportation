@@ -1,6 +1,9 @@
 package com.cunjunwang.shanghai.bus.query.service.queryservice;
 
 import com.cunjunwang.shanghai.bus.query.constant.Constant;
+import com.cunjunwang.shanghai.bus.query.constant.ErrConstant;
+import com.cunjunwang.shanghai.bus.query.constant.ErrMsgConstant;
+import com.cunjunwang.shanghai.bus.query.exception.ShanghaiBusException;
 import com.cunjunwang.shanghai.bus.query.model.dto.*;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusDetailVO;
@@ -11,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -35,6 +39,7 @@ public class BusQueryService {
 
     /**
      * 查询公交实时到站信息
+     *
      * @param getBusCurrentStopDTO
      * @return
      */
@@ -58,6 +63,7 @@ public class BusQueryService {
 
     /**
      * 查询公交介绍信息
+     *
      * @param busLineNumber
      * @return
      */
@@ -72,16 +78,24 @@ public class BusQueryService {
         // 发送请求
         String fullUrl = String.format(getStationsURL, sid, Constant.UP_GOING);
         String responseHtml = restTemplate.getForObject(fullUrl, String.class);
-        BusDetailVO busDetailVO = htmlParserUtil.getBusIntroInfo(responseHtml);
-        busDetailVO.setLineNum(busLineNumber);
-        busDetailVO.setBusDirectionType("test");
-        logger.info("响应参数: {}", busDetailVO.toString());
-        return busDetailVO;
+
+        if (responseHtml == null || StringUtils.isEmpty(responseHtml)) {
+            BusDetailVO busDetailVO = htmlParserUtil.getBusIntroInfo(responseHtml);
+            busDetailVO.setLineNum(busLineNumber);
+            busDetailVO.setBusDirectionType(Constant.DOUBLE_DIRECTION);
+            logger.info("响应参数: {}", busDetailVO.toString());
+            return busDetailVO;
+        } else {
+            logger.error("网络请求错误");
+            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
+        }
+
     }
 
     /**
      * [Helper]
      * 根据线路查询Sid
+     *
      * @param busLineNumber
      * @return
      */
