@@ -186,4 +186,16 @@ public class MainDataService {
         busLineException.setIsDel(Constant.IS_DEL);
         return busLinePersistExceptionDBService.updateByPrimaryKey(busLineException);
     }
+
+    /**
+     * 初始化存储所有公交站点名称
+     * @return
+     */
+    public Boolean initSaveAllBusStation() {
+        // TODO: 遍历所有公交线路列表
+        // TODO: 调用接口, 请求公交站点信息列表
+        // TODO: 遍历站点列表, 存储数据库
+        // TODO: 若站点已存储过, 不再存储
+        return true;
+    }
 }

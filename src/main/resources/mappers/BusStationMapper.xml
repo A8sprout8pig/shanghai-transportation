@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cunjunwang.shanghai.bus.query.dao.BusStationMapper">
+  <resultMap id="BaseResultMap" type="com.cunjunwang.shanghai.bus.query.model.po.BusStation">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="bus_station_name" jdbcType="VARCHAR" property="busStationName" />
+    <result column="bus_line_go_through" jdbcType="VARCHAR" property="busLineGoThrough" />
+    <result column="bus_line_go_through_number" jdbcType="INTEGER" property="busLineGoThroughNumber" />
+    <result column="bus_station_address" jdbcType="VARCHAR" property="busStationAddress" />
+    <result column="is_del" jdbcType="INTEGER" property="isDel" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, bus_station_name, bus_line_go_through, bus_line_go_through_number, bus_station_address, 
+    is_del, create_time, update_time
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from bus_station
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <insert id="insert" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusStation">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into bus_station (id, bus_station_name, bus_line_go_through, 
+      bus_line_go_through_number, bus_station_address, 
+      is_del, create_time, update_time
+      )
+    values (#{id,jdbcType=BIGINT}, #{busStationName,jdbcType=VARCHAR}, #{busLineGoThrough,jdbcType=VARCHAR}, 
+      #{busLineGoThroughNumber,jdbcType=INTEGER}, #{busStationAddress,jdbcType=VARCHAR}, 
+      #{isDel,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusStation">
+    <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+      SELECT LAST_INSERT_ID()
+    </selectKey>
+    insert into bus_station
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      id,
+      <if test="busStationName != null">
+        bus_station_name,
+      </if>
+      <if test="busLineGoThrough != null">
+        bus_line_go_through,
+      </if>
+      <if test="busLineGoThroughNumber != null">
+        bus_line_go_through_number,
+      </if>
+      <if test="busStationAddress != null">
+        bus_station_address,
+      </if>
+      <if test="isDel != null">
+        is_del,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      #{id,jdbcType=BIGINT},
+      <if test="busStationName != null">
+        #{busStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="busLineGoThrough != null">
+        #{busLineGoThrough,jdbcType=VARCHAR},
+      </if>
+      <if test="busLineGoThroughNumber != null">
+        #{busLineGoThroughNumber,jdbcType=INTEGER},
+      </if>
+      <if test="busStationAddress != null">
+        #{busStationAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null">
+        #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusStation">
+    update bus_station
+    <set>
+      <if test="busStationName != null">
+        bus_station_name = #{busStationName,jdbcType=VARCHAR},
+      </if>
+      <if test="busLineGoThrough != null">
+        bus_line_go_through = #{busLineGoThrough,jdbcType=VARCHAR},
+      </if>
+      <if test="busLineGoThroughNumber != null">
+        bus_line_go_through_number = #{busLineGoThroughNumber,jdbcType=INTEGER},
+      </if>
+      <if test="busStationAddress != null">
+        bus_station_address = #{busStationAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="isDel != null">
+        is_del = #{isDel,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusStation">
+    update bus_station
+    set bus_station_name = #{busStationName,jdbcType=VARCHAR},
+      bus_line_go_through = #{busLineGoThrough,jdbcType=VARCHAR},
+      bus_line_go_through_number = #{busLineGoThroughNumber,jdbcType=INTEGER},
+      bus_station_address = #{busStationAddress,jdbcType=VARCHAR},
+      is_del = #{isDel,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

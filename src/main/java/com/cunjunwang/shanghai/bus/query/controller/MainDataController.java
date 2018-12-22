@@ -36,4 +36,11 @@ public class MainDataController {
                 mainDataService.handlePersistenceException());
     }
 
+    @RequestMapping(value = "/initSaveAllBusStation", method = RequestMethod.POST)
+    @ApiOperation(value = "提取所有公交站点数据并存储", notes = "提取所有公交站点数据并存储")
+    public ResultData<Boolean> initSaveAllBusStation() {
+        return new ResultData<>(ResultData.SUCCESS, "", "存储公交站点信息完成",
+                mainDataService.initSaveAllBusStation());
+    }
+
 }
