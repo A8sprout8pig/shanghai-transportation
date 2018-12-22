@@ -4,6 +4,8 @@ import com.cunjunwang.shanghai.bus.query.model.po.BusLineException;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BusLineExceptionMapper {
     int insert(BusLineException record);
@@ -17,4 +19,6 @@ public interface BusLineExceptionMapper {
     int updateByPrimaryKey(BusLineException record);
 
     BusLineException selectByBusLineNumber(@Param("busLineNumber") String busLineNumber);
+
+    List<BusLineException> selectAll();
 }

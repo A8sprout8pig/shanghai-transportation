@@ -29,4 +29,11 @@ public class MainDataController {
                 mainDataService.initSaveAllBusData());
     }
 
+    @RequestMapping(value = "/handlePersistenceException", method = RequestMethod.POST)
+    @ApiOperation(value = "处理存储异常的公交数据", notes = "处理存储异常的公交数据")
+    public ResultData<Map<String, Boolean>> handlePersistenceException() {
+        return new ResultData<Map<String, Boolean>>(ResultData.SUCCESS, "", "处理存储异常的公交数据完成",
+                mainDataService.handlePersistenceException());
+    }
+
 }

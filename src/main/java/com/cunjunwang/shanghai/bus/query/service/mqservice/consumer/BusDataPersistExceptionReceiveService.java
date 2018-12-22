@@ -22,8 +22,6 @@ public class BusDataPersistExceptionReceiveService {
 
     private static final Logger logger = LoggerFactory.getLogger(BusDataPersistExceptionReceiveService.class);
 
-    private static final String DEFAULT_EXCEPTION_REASON = "上海发布接口调用异常";
-
     @Autowired
     private BusLinePersistExceptionDBService busLinePersistExceptionDBService;
 
@@ -39,7 +37,7 @@ public class BusDataPersistExceptionReceiveService {
             String busLineNumber = busDataExceptionDTO.getBusLineNumber();
             BusLineException busLineException = new BusLineException();
             busLineException.setBusLine(busLineNumber);
-            busLineException.setExceptionReason(DEFAULT_EXCEPTION_REASON);
+            busLineException.setExceptionReason(busDataExceptionDTO.getExceptionReason());
             busLinePersistExceptionDBService.insertNewEntry(busLineException);
 
             message.acknowledge();

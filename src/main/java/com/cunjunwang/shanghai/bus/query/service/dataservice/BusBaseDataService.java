@@ -3,6 +3,9 @@ package com.cunjunwang.shanghai.bus.query.service.dataservice;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.cunjunwang.shanghai.bus.query.constant.ErrConstant;
+import com.cunjunwang.shanghai.bus.query.constant.ErrMsgConstant;
+import com.cunjunwang.shanghai.bus.query.exception.ShanghaiBusException;
 import com.cunjunwang.shanghai.bus.query.model.dto.*;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.bus.query.util.HtmlParserUtil;
@@ -16,6 +19,7 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -75,7 +79,7 @@ public class BusBaseDataService {
             return busSidDTO;
         } else {
             logger.warn("请求结果为空");
-            return null;
+            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
         }
     }
 
@@ -93,6 +97,10 @@ public class BusBaseDataService {
         String fullUrl = String.format(getStationsURL, sid, stopType);
         logger.info("查询URL: {}", fullUrl);
         String responseHtml = restTemplate.getForObject(fullUrl, String.class);
+        if(responseHtml == null || StringUtils.isEmpty(responseHtml)) {
+            logger.warn("请求结果为空");
+            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
+        }
         // logger.info("上海发布平台响应参数[{}]", responseHtml);
         return htmlParserUtil.getStationList(responseHtml);
     }
@@ -117,6 +125,12 @@ public class BusBaseDataService {
         HttpEntity entity = new HttpEntity<>(params, headers);
         // 发送请求
         String response = restTemplate.postForObject(getStopURL, entity, String.class);
+
+        if(response == null || StringUtils.isEmpty(response)) {
+            logger.warn("请求结果为空");
+            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
+        }
+
         logger.info("上海发布平台响应参数: {}", JSON.parse(response));
         // 封装出参
         BusCurrentStopVO busCurrentStopVO = new BusCurrentStopVO();
@@ -133,6 +147,7 @@ public class BusBaseDataService {
                 busCurrentStopVO.setLicense("等待发车");
             }
         }
+
         return busCurrentStopVO;
     }
 }

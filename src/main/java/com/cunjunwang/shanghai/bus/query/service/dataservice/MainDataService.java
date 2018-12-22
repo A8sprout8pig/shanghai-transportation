@@ -1,7 +1,9 @@
 package com.cunjunwang.shanghai.bus.query.service.dataservice;
 
+import com.cunjunwang.shanghai.bus.query.constant.Constant;
 import com.cunjunwang.shanghai.bus.query.model.dto.BatchSaveBusInfoDTO;
-import com.cunjunwang.shanghai.bus.query.model.dto.BusDataExceptionDTO;
+import com.cunjunwang.shanghai.bus.query.model.po.BusLineException;
+import com.cunjunwang.shanghai.bus.query.service.dbservice.BusLinePersistExceptionDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by CunjunWang on 2018-12-22.
@@ -21,6 +24,9 @@ public class MainDataService {
 
     @Autowired
     private BusDataPersistenceService busDataPersistenceService;
+
+    @Autowired
+    private BusLinePersistExceptionDBService busLinePersistExceptionDBService;
 
     private String[] allBusLineNumber = {"01路", "04路", "1001路", "1002路", "1003路", "1004路", "1005路", "1006路", "1007路", "1008路",
             "1009路", "100路", "1010路", "1011路", "1012路", "1013路", "1014路", "1015路", "1016路", "1017路", "1018路", "1019路", "1020路",
@@ -135,5 +141,49 @@ public class MainDataService {
             logger.error("初始化公交数据失败", e);
             return null;
         }
+    }
+
+    /**
+     * 处理异常数据
+     * TODO: 配置并接入定时任务自行处理
+     *
+     * @return
+     */
+    public Map<String, Boolean> handlePersistenceException() {
+        List<BusLineException> unhandledList = busLinePersistExceptionDBService.selectAllUnhandled();
+        if (unhandledList == null || unhandledList.isEmpty()) {
+            logger.warn("不存在需要处理的存储异常信息");
+            return null;
+        }
+        logger.info("开始批量处理存储异常信息, 共[{}]条", unhandledList.size());
+
+        Map<String, Boolean> resultMap = new ConcurrentHashMap<>();
+
+        // 轮循待处理的异常列表
+        for (BusLineException busLineException : unhandledList) {
+            String busLineNumber = busLineException.getBusLine();
+            Boolean result = busDataPersistenceService.saveOrNotifyException(busLineNumber);
+            // 无论该条记录是否处理成功, 都执行逻辑删除.
+            this.updateHandleStatus(busLineException);
+            resultMap.put(busLineNumber, result);
+        }
+
+        return resultMap;
+    }
+
+    /**
+     * 更新异常记录处理状态为已处理
+     *
+     * @param busLineException
+     */
+    private Boolean updateHandleStatus(BusLineException busLineException) {
+        if (busLineException == null) {
+            logger.error("更新异常信息处理状态失败");
+            return false;
+        }
+        logger.info("开始更新异常信息处理状态, 线路: [{}], 条目Id: [{}]",
+                busLineException.getBusLine(), busLineException.getId());
+        busLineException.setIsDel(Constant.IS_DEL);
+        return busLinePersistExceptionDBService.updateByPrimaryKey(busLineException);
     }
 }
