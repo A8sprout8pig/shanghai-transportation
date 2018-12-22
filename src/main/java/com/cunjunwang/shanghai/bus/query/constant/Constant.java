@@ -9,4 +9,7 @@ public class Constant {
 
     public static final String DOWN_GOING = "1";
 
+    public static final Integer NOT_DEL = 0;
+
+    public static final Integer IS_DEL = 1;
 }
