@@ -1,6 +1,7 @@
-package com.cunjunwang.shanghai.bus.query.service;
+package com.cunjunwang.shanghai.bus.query.service.dataservice;
 
 import com.cunjunwang.shanghai.bus.query.model.dto.BatchSaveBusInfoDTO;
+import com.cunjunwang.shanghai.bus.query.model.dto.BusDataExceptionDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -131,11 +132,6 @@ public class MainDataService {
             batchSaveBusInfoDTO.setLineNumbers(allBusLineNumberList);
             return busDataPersistenceService.batchSaveBusLineDataByLineNumbers(batchSaveBusInfoDTO);
         } catch (Exception e) {
-            // TODO: 异步记录初始化异常并处理
-            // TODO: 建立异常记录表，存储失败记录的公交线路, 时间, 原因
-            // TODO: 捕获异常时, 发送异常记录消息到MQ
-            // TODO: 本服务自己消费消息, 存储到异常表
-            // TODO: 建立定时任务, 处理异常记录
             logger.error("初始化公交数据失败", e);
             return null;
         }

@@ -1,4 +1,4 @@
-package com.cunjunwang.shanghai.bus.query.service;
+package com.cunjunwang.shanghai.bus.query.service.dataservice;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;

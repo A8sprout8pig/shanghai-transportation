@@ -1,7 +1,7 @@
 package com.cunjunwang.shanghai.bus.query.controller;
 
 import com.cunjunwang.shanghai.bus.query.entity.ResultData;
-import com.cunjunwang.shanghai.bus.query.service.MainDataService;
+import com.cunjunwang.shanghai.bus.query.service.dataservice.MainDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;

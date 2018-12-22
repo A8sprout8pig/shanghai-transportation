@@ -3,7 +3,7 @@ package com.cunjunwang.shanghai.bus.query.controller;
 import com.cunjunwang.shanghai.bus.query.entity.ResultData;
 import com.cunjunwang.shanghai.bus.query.model.dto.BatchSaveBusInfoDTO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusLineDataVO;
-import com.cunjunwang.shanghai.bus.query.service.BusDataPersistenceService;
+import com.cunjunwang.shanghai.bus.query.service.dataservice.BusDataPersistenceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
