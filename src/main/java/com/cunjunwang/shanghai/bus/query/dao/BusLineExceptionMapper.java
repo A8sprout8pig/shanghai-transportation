@@ -21,4 +21,6 @@ public interface BusLineExceptionMapper {
     BusLineException selectByBusLineNumber(@Param("busLineNumber") String busLineNumber);
 
     List<BusLineException> selectAll();
+
+    List<String> selectAllValidLineNumber();
 }

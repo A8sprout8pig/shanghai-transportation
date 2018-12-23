@@ -53,3 +53,17 @@ create table if not exists bus_station
     primary key (id)
 )
   comment '公交站信息表';
+
+
+create table if not exists bus_station_exception
+(
+  id bigint auto_increment comment '主键',
+  bus_station_name varchar(200) null comment '站点名',
+  is_del int default 0 null comment '逻辑删除标志符(是否已处理), 0-未删除(未处理) 1-已删除(已处理)',
+  create_time datetime default current_timestamp null comment '创建时间',
+  update_time datetime null comment '更新时间',
+  constraint bus_station_exception_pk
+    primary key (id)
+)
+  comment '公交站点存储异常表, 用于异常记录和后续异常处理';
+

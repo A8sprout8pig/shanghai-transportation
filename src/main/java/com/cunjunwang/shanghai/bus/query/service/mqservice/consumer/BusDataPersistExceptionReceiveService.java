@@ -1,8 +1,11 @@
 package com.cunjunwang.shanghai.bus.query.service.mqservice.consumer;
 
-import com.cunjunwang.shanghai.bus.query.model.dto.BusDataExceptionDTO;
+import com.cunjunwang.shanghai.bus.query.model.dto.BusLineDataExceptionDTO;
+import com.cunjunwang.shanghai.bus.query.model.dto.BusStationExceptionDTO;
 import com.cunjunwang.shanghai.bus.query.model.po.BusLineException;
+import com.cunjunwang.shanghai.bus.query.model.po.BusStationException;
 import com.cunjunwang.shanghai.bus.query.service.dbservice.BusLinePersistExceptionDBService;
+import com.cunjunwang.shanghai.bus.query.service.dbservice.BusStationPersistExceptionDBService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,24 +28,49 @@ public class BusDataPersistExceptionReceiveService {
     @Autowired
     private BusLinePersistExceptionDBService busLinePersistExceptionDBService;
 
-    @JmsListener(destination = "${com.cunjunwang.activeMQ.shanghai.bus.query.busDataPersistException:bus.data.persist.exception}", containerFactory = "busMQFactory")
-    public void busDataPersistExceptionReceiver(ObjectMessage message, Session session) throws Exception {
+    @Autowired
+    private BusStationPersistExceptionDBService busStationPersistExceptionDBService;
+
+    @JmsListener(destination = "${com.cunjunwang.activeMQ.shanghai.bus.query.busLinePersistException:bus.line.persist.exception}", containerFactory = "busMQFactory")
+    public void busLineDataExceptionReceiver(ObjectMessage message, Session session) throws Exception {
         try {
             logger.info("接受公交线路存储异常通知，开始记录异常信息");
-            if (!(message.getObject() instanceof BusDataExceptionDTO)) {
+            if (!(message.getObject() instanceof BusLineDataExceptionDTO)) {
                 logger.warn("消息数据类型不匹配");
                 return;
             }
-            BusDataExceptionDTO busDataExceptionDTO = (BusDataExceptionDTO) message.getObject();
-            String busLineNumber = busDataExceptionDTO.getBusLineNumber();
+            BusLineDataExceptionDTO busLineDataExceptionDTO = (BusLineDataExceptionDTO) message.getObject();
+            String busLineNumber = busLineDataExceptionDTO.getBusLineNumber();
             BusLineException busLineException = new BusLineException();
             busLineException.setBusLine(busLineNumber);
-            busLineException.setExceptionReason(busDataExceptionDTO.getExceptionReason());
+            busLineException.setExceptionReason(busLineDataExceptionDTO.getExceptionReason());
             busLinePersistExceptionDBService.insertNewEntry(busLineException);
 
             message.acknowledge();
         } catch (Exception e) {
-            logger.error("消费公交存储异常信息出错", e);
+            logger.error("消费公交线路存储异常信息出错", e);
+            session.recover();
+        }
+    }
+
+    @JmsListener(destination = "${com.cunjunwang.activeMQ.shanghai.bus.query.busLinePersistException:bus.data.persist.exception}", containerFactory = "busMQFactory")
+    public void busStationDataExceptionReceiver(ObjectMessage message, Session session) throws Exception {
+        try {
+            logger.info("接受公交站点存储异常通知，开始记录异常信息");
+            if (!(message.getObject() instanceof BusStationExceptionDTO)) {
+                logger.warn("消息数据类型不匹配");
+                return;
+            }
+
+            BusStationExceptionDTO busStationExceptionDTO = (BusStationExceptionDTO) message.getObject();
+            String busStationName = busStationExceptionDTO.getBusStationName();
+            BusStationException busStationException = new BusStationException();
+            busStationException.setBusStationName(busStationName);
+            busStationPersistExceptionDBService.insertNewEntry(busStationException);
+
+            message.acknowledge();
+        } catch (Exception e) {
+            logger.error("消费公交站点存储异常信息出错", e);
             session.recover();
         }
     }

@@ -34,11 +34,21 @@ public class ActiveMQConfiguration {
     /**
      * 公交基础信息存储异常
      */
-    public static String busDataPersistException;
+    public static String busLinePersistException;
 
-    @Value("${com.cunjunwang.activeMQ.shanghai.bus.query.busDataPersistException:bus.data.persist.exception}")
-    public void setBusDataPersistException(String busDataPersistException) {
-        this.busDataPersistException = busDataPersistException;
+    /**
+     * 公交站点信息存储异常
+     */
+    public static String busStationPersistException;
+
+    @Value("${com.cunjunwang.activeMQ.shanghai.bus.query.busLinePersistException:bus.line.persist.exception}")
+    public void setBusLinePersistException(String busLinePersistException) {
+        this.busLinePersistException = busLinePersistException;
+    }
+
+    @Value("${com.cunjunwang.activeMQ.shanghai.bus.query.busStationPersistException:bus.station.persist.exception}")
+    public void setBusStationPersistException(String busStationPersistException) {
+        this.busStationPersistException = busStationPersistException;
     }
 
     /**
@@ -85,10 +95,19 @@ public class ActiveMQConfiguration {
     /**
      * 公交数据持久化存储异常
      **/
-    @Bean(name = "busDataPersistException")
-    public ActiveMQQueue busDataPersistException() {
-        logger.info("初始化activeMQ队列[{}],队列名称[{}]", "公交数据持久化存储异常", busDataPersistException);
-        return new ActiveMQQueue(busDataPersistException);
+    @Bean(name = "busLinePersistException")
+    public ActiveMQQueue busLinePersistException() {
+        logger.info("初始化activeMQ队列[{}], 队列名称[{}]", "公交线路持久化存储异常", busLinePersistException);
+        return new ActiveMQQueue(busLinePersistException);
+    }
+
+    /**
+     * 站点数据持久化存储异常
+     **/
+    @Bean(name = "busStationPersistException")
+    public ActiveMQQueue busStationPersistException() {
+        logger.info("初始化activeMQ队列[{}], 队列名称[{}]", "公交站点持久化存储异常", busStationPersistException);
+        return new ActiveMQQueue(busStationPersistException);
     }
 
     @Bean(name = "busMQFactory")
