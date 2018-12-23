@@ -6,9 +6,11 @@ import com.cunjunwang.shanghai.bus.query.constant.ErrMsgConstant;
 import com.cunjunwang.shanghai.bus.query.exception.ShanghaiBusException;
 import com.cunjunwang.shanghai.bus.query.model.dto.*;
 import com.cunjunwang.shanghai.bus.query.model.po.BusLine;
+import com.cunjunwang.shanghai.bus.query.model.po.BusStation;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusDetailVO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusLineDataVO;
 import com.cunjunwang.shanghai.bus.query.service.dbservice.BusLineDBService;
+import com.cunjunwang.shanghai.bus.query.service.dbservice.BusStationDBService;
 import com.cunjunwang.shanghai.bus.query.service.mqservice.producer.BusDataPersistExceptionNotifyService;
 import com.cunjunwang.shanghai.bus.query.service.queryservice.BusQueryService;
 import org.slf4j.Logger;
@@ -21,6 +23,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by CunjunWang on 2018-12-21.
@@ -42,6 +45,15 @@ public class BusDataPersistenceService {
     @Autowired
     private BusDataPersistExceptionNotifyService busDataPersistExceptionNotifyService;
 
+    @Autowired
+    private BusStationDBService busStationDBService;
+
+    /**
+     * 根据线路名获取线路信息
+     *
+     * @param lineNumber
+     * @return
+     */
     public BusLineDataVO getBusLineDataByLineNumber(String lineNumber) {
 
         if (lineNumber == null) {
@@ -177,7 +189,7 @@ public class BusDataPersistenceService {
 
         for (String lineNumber : lineNumbers) {
             logger.info("开始处理第[{}]条数据", counter);
-            if(this.saveOrNotifyException(lineNumber)) {
+            if (this.saveBusLineInfoOrNotifyException(lineNumber)) {
                 successCounter++;
             } else {
                 failCounter++;
@@ -194,10 +206,11 @@ public class BusDataPersistenceService {
 
     /**
      * 存储线路数据或发送异常信息
+     *
      * @param busLineNumber
      * @return
      */
-    public Boolean saveOrNotifyException(String busLineNumber) {
+    public Boolean saveBusLineInfoOrNotifyException(String busLineNumber) {
         logger.info("开始存储线路[{}]的信息", busLineNumber);
         // 存储线路数据
         try {
@@ -211,12 +224,60 @@ public class BusDataPersistenceService {
             if (e instanceof ShanghaiBusException && !String.format(ErrMsgConstant.DUPLICATE_BUS_LINE_INFO_ERR_MSG, busLineNumber)
                     .equals(((ShanghaiBusException) e).getErrMsg())) {
                 // 封装参数
-                BusDataExceptionDTO busDataExceptionDTO = new BusDataExceptionDTO();
-                busDataExceptionDTO.setBusLineNumber(busLineNumber);
-                busDataExceptionDTO.setExceptionReason(((ShanghaiBusException) e).getErrMsg());
+                BusLineDataExceptionDTO busLineDataExceptionDTO = new BusLineDataExceptionDTO();
+                busLineDataExceptionDTO.setBusLineNumber(busLineNumber);
+                busLineDataExceptionDTO.setExceptionReason(((ShanghaiBusException) e).getErrMsg());
                 // 发送通知
-                busDataPersistExceptionNotifyService.forward(busDataExceptionDTO);
+                busDataPersistExceptionNotifyService.forwardBusLineDataException(busLineDataExceptionDTO);
             }
+            return false;
+        }
+    }
+
+    /**
+     * 批量存储公交站点信息
+     * 方法调用前已做过参数校验
+     *
+     * @param batchSaveStationInfoDTO
+     */
+    public Map<String, Boolean> batchSaveBusStationData(BatchSaveStationInfoDTO batchSaveStationInfoDTO) {
+        List<String> validBusLineNumberList = batchSaveStationInfoDTO.getValidBusLineNumberList();
+
+        Map<String, Boolean> resultMap = new ConcurrentHashMap<>();
+        for (String busLineNumber : validBusLineNumberList) {
+            List<String> busStationNameList = busQueryService.getLineStationList(busLineNumber);
+            if (busStationNameList == null || busStationNameList.isEmpty()) {
+                logger.error("不存在有效的公交线路信息!");
+                throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+            }
+            for (String busStationName : busStationNameList) {
+                Boolean result = this.saveBusStationInfoOrNotifyException(busStationName);
+                resultMap.put(busStationName, result);
+            }
+        }
+
+        return resultMap;
+    }
+
+    public Boolean saveBusStationInfoOrNotifyException(String busStationName) {
+        try {
+            BusStation busStation = busStationDBService.selectByStationName(busStationName);
+            // 若站点已存储过, 不再存储
+            if (busStation != null) {
+                logger.warn("站点[{}]已存储过", busStationName);
+                return false;
+            }
+            BusStation newBusStation = new BusStation();
+            newBusStation.setBusStationName(busStationName);
+            Long id = busStationDBService.insertNewStation(newBusStation);
+            return true;
+        } catch (Exception e) {
+            // 若存储过程出现异常, 发送通知记录异常信息
+            logger.warn("站点[{}]存储异常, 进行异常处理流程", busStationName);
+            BusStationExceptionDTO busStationExceptionDTO = new BusStationExceptionDTO();
+            busStationExceptionDTO.setBusStationName(busStationName);
+            // 发送通知
+            busDataPersistExceptionNotifyService.forwardBusStationDataException(busStationExceptionDTO);
             return false;
         }
     }

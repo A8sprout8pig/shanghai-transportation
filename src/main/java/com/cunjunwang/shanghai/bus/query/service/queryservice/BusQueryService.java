@@ -17,6 +17,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * Created by CunjunWang on 2018-12-18.
  */
@@ -89,7 +94,46 @@ public class BusQueryService {
             logger.error("网络请求错误");
             throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
         }
+    }
 
+    /**
+     * 获取线路所有站点名
+     * @param busLineNumber
+     * @return
+     */
+    public List<String> getLineStationList(String busLineNumber) {
+        if(busLineNumber == null) {
+            logger.error("获取线路所有站点名，线路名无效");
+            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+        }
+        logger.info("开始查询线路[{}]所有站点列表", busLineNumber);
+
+        BusLineNumberDTO busLineNumberDTO = new BusLineNumberDTO();
+        busLineNumberDTO.setIdnum(busLineNumber);
+        BusSidDTO busSidDTO = busBaseDataService.getBusSID(busLineNumberDTO);
+        String sid = busSidDTO.getSid();
+        // 先请求上行站点信息
+        GetBusStationsDTO getBusStationsDTO = new GetBusStationsDTO();
+        getBusStationsDTO.setSid(sid);
+        getBusStationsDTO.setStopType(Constant.UP_GOING);
+        List<BusStationDTO> upGoingStationList = busBaseDataService.getBusStationsBySid(getBusStationsDTO);
+        // 再请求下行站点信息
+        getBusStationsDTO.setStopType(Constant.DOWN_GOING);
+        List<BusStationDTO> downGoingStationList = busBaseDataService.getBusStationsBySid(getBusStationsDTO);
+        // 去重
+        Set<String> lineNumberSet = new HashSet<>();
+        for(BusStationDTO busStationDTO : upGoingStationList) {
+            lineNumberSet.add(busStationDTO.getStationName());
+        }
+        for(BusStationDTO busStationDTO : downGoingStationList) {
+            lineNumberSet.add(busStationDTO.getStationName());
+        }
+
+        List<String> resultList = new ArrayList<>(lineNumberSet);
+        logger.info("查询线路[{}]站点列表完成, 上下行共{{}]站, 信息: [{}]",
+                busLineNumber, resultList.size(), resultList);
+
+        return resultList;
     }
 
     /**

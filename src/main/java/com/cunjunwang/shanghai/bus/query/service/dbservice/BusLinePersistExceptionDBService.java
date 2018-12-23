@@ -61,4 +61,12 @@ public class BusLinePersistExceptionDBService {
         }
         return busLineExceptionMapper.updateByPrimaryKeySelective(busLineException) == 1;
     }
+
+    /**
+     * 查询所有有效的线路名
+     * @return
+     */
+    public List<String> selectAllValidLineNumber() {
+        return busLineExceptionMapper.selectAllValidLineNumber();
+    }
 }

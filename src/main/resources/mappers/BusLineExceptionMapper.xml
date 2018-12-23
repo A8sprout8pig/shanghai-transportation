@@ -36,6 +36,11 @@
         from bus_line_exception
         where is_del=0;
     </select>
+    <select id="selectAllValidLineNumber" resultType="java.lang.String">
+        select distinct bl.bus_line
+        from bus_line bl
+        where is_del = 0
+    </select>
     <insert id="insert" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLineException">
         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
             SELECT LAST_INSERT_ID()

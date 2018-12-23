@@ -1,9 +1,15 @@
 package com.cunjunwang.shanghai.bus.query.service.dataservice;
 
 import com.cunjunwang.shanghai.bus.query.constant.Constant;
+import com.cunjunwang.shanghai.bus.query.constant.ErrConstant;
+import com.cunjunwang.shanghai.bus.query.constant.ErrMsgConstant;
+import com.cunjunwang.shanghai.bus.query.exception.ShanghaiBusException;
 import com.cunjunwang.shanghai.bus.query.model.dto.BatchSaveBusInfoDTO;
+import com.cunjunwang.shanghai.bus.query.model.dto.BatchSaveStationInfoDTO;
 import com.cunjunwang.shanghai.bus.query.model.po.BusLineException;
 import com.cunjunwang.shanghai.bus.query.service.dbservice.BusLinePersistExceptionDBService;
+import com.cunjunwang.shanghai.bus.query.service.dbservice.BusStationDBService;
+import com.cunjunwang.shanghai.bus.query.service.queryservice.BusQueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +33,15 @@ public class MainDataService {
 
     @Autowired
     private BusLinePersistExceptionDBService busLinePersistExceptionDBService;
+
+    @Autowired
+    private BusBaseDataService busBaseDataService;
+
+    @Autowired
+    private BusStationDBService busStationDBService;
+
+    @Autowired
+    private BusQueryService busQuerySerivce;
 
     private String[] allBusLineNumber = {"01路", "04路", "1001路", "1002路", "1003路", "1004路", "1005路", "1006路", "1007路", "1008路",
             "1009路", "100路", "1010路", "1011路", "1012路", "1013路", "1014路", "1015路", "1016路", "1017路", "1018路", "1019路", "1020路",
@@ -128,6 +143,7 @@ public class MainDataService {
 
     /**
      * 初始化公交数据
+     *
      * @return
      */
     public Map<String, Boolean> initSaveAllBusData() {
@@ -144,12 +160,12 @@ public class MainDataService {
     }
 
     /**
-     * 处理异常数据
+     * 处理线路异常数据
      * TODO: 配置并接入定时任务自行处理
      *
      * @return
      */
-    public Map<String, Boolean> handlePersistenceException() {
+    public Map<String, Boolean> handleBusLinePersistenceException() {
         List<BusLineException> unhandledList = busLinePersistExceptionDBService.selectAllUnhandled();
         if (unhandledList == null || unhandledList.isEmpty()) {
             logger.warn("不存在需要处理的存储异常信息");
@@ -162,9 +178,9 @@ public class MainDataService {
         // 轮循待处理的异常列表
         for (BusLineException busLineException : unhandledList) {
             String busLineNumber = busLineException.getBusLine();
-            Boolean result = busDataPersistenceService.saveOrNotifyException(busLineNumber);
+            Boolean result = busDataPersistenceService.saveBusLineInfoOrNotifyException(busLineNumber);
             // 无论该条记录是否处理成功, 都执行逻辑删除.
-            this.updateHandleStatus(busLineException);
+            this.updateBusLineExceptionHandleStatus(busLineException);
             resultMap.put(busLineNumber, result);
         }
 
@@ -176,7 +192,7 @@ public class MainDataService {
      *
      * @param busLineException
      */
-    private Boolean updateHandleStatus(BusLineException busLineException) {
+    private Boolean updateBusLineExceptionHandleStatus(BusLineException busLineException) {
         if (busLineException == null) {
             logger.error("更新异常信息处理状态失败");
             return false;
@@ -189,13 +205,21 @@ public class MainDataService {
 
     /**
      * 初始化存储所有公交站点名称
+     *
      * @return
      */
-    public Boolean initSaveAllBusStation() {
-        // TODO: 遍历所有公交线路列表
-        // TODO: 调用接口, 请求公交站点信息列表
-        // TODO: 遍历站点列表, 存储数据库
-        // TODO: 若站点已存储过, 不再存储
-        return true;
+    public Map<String, Boolean> initSaveAllBusStation() {
+        logger.info("开始初始化存储线路名称信息");
+        // 请求所有有效的站点信息
+        List<String> validBusLineNumberList = busLinePersistExceptionDBService.selectAllValidLineNumber();
+        if (validBusLineNumberList == null || validBusLineNumberList.isEmpty()) {
+            logger.error("不存在有效的公交线路信息!");
+            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+        }
+        logger.info("线路数: {}", validBusLineNumberList.size());
+        // 遍历所有公交线路列表
+        BatchSaveStationInfoDTO batchSaveStationInfoDTO = new BatchSaveStationInfoDTO();
+        batchSaveStationInfoDTO.setValidBusLineNumberList(validBusLineNumberList);
+        return busDataPersistenceService.batchSaveBusStationData(batchSaveStationInfoDTO);
     }
 }

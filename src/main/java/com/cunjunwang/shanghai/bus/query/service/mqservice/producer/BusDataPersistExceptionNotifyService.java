@@ -1,6 +1,7 @@
 package com.cunjunwang.shanghai.bus.query.service.mqservice.producer;
 
-import com.cunjunwang.shanghai.bus.query.model.dto.BusDataExceptionDTO;
+import com.cunjunwang.shanghai.bus.query.model.dto.BusLineDataExceptionDTO;
+import com.cunjunwang.shanghai.bus.query.model.dto.BusStationExceptionDTO;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,16 +24,32 @@ public class BusDataPersistExceptionNotifyService {
     private JmsMessagingTemplate jmsMessagingTemplate;
 
     @Autowired
-    @Qualifier("busDataPersistException")
-    private ActiveMQQueue activeMQQueue;
+    @Qualifier("busLinePersistException")
+    private ActiveMQQueue busLineExceptionQueue;
+
+    @Autowired
+    @Qualifier("busStationPersistException")
+    private ActiveMQQueue busStationExceptionQueue;
 
     /**
      * 发送公交线路数据存储异常通知
-     * @param busDataExceptionDTO
+     * @param busLineDataExceptionDTO
      */
-    public void forward(BusDataExceptionDTO busDataExceptionDTO){
-        logger.info("开始生产公交线路[{}]存储异常通知, 数据存入异常记录表", busDataExceptionDTO.toString());
-        jmsMessagingTemplate.convertAndSend(activeMQQueue, busDataExceptionDTO);
+    public void forwardBusLineDataException(BusLineDataExceptionDTO busLineDataExceptionDTO){
+        logger.info("开始生产公交线路[{}]存储异常通知, 数据存入异常记录表", busLineDataExceptionDTO.toString());
+        jmsMessagingTemplate.convertAndSend(busLineExceptionQueue, busLineDataExceptionDTO);
     }
+
+    /**
+     * 发送公交站点数据存储异常通知
+     * @param busStationExceptionDTO
+     */
+    public void forwardBusStationDataException(BusStationExceptionDTO busStationExceptionDTO){
+        logger.info("开始生产公交站点[{}]存储异常通知, 数据存入异常记录表", busStationExceptionDTO.getBusStationName());
+        jmsMessagingTemplate.convertAndSend(busStationExceptionQueue, busStationExceptionDTO);
+    }
+
+
+
 
 }

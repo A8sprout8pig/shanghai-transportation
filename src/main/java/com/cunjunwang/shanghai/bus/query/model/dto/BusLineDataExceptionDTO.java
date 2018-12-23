@@ -17,8 +17,8 @@ import java.io.Serializable;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(value = "BusDataExceptionDTO", description = "传递公交存储异常信息DTO")
-public class BusDataExceptionDTO implements Serializable {
+@ApiModel(value = "BusLineDataExceptionDTO", description = "传递公交存储异常信息DTO")
+public class BusLineDataExceptionDTO implements Serializable {
 
     private static final long serialVersionUID = -1L;
 

@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 /**
  * 业务数据查询接口
  * Created by CunjunWang on 2018/12/16.
@@ -44,6 +46,13 @@ public class BusinessController {
     public ResultData<BusDetailVO> queryBusDetail(String busLineNumber) {
         return new ResultData<>(ResultData.SUCCESS, "", "查询公交介绍信息成功",
                 busQueryService.queryBusDetail(busLineNumber));
+    }
+
+    @RequestMapping(value = "/queryBusStationName", method = RequestMethod.POST)
+    @ApiOperation(value = "查询公交上下行所有站点名", notes = "查询公交上下行所有站点名")
+    public ResultData<List<String>> queryBusStationName(String busLineNumber) {
+        return new ResultData<>(ResultData.SUCCESS, "", "查询公交所有站点名完成",
+                busQueryService.getLineStationList(busLineNumber));
     }
 
 
