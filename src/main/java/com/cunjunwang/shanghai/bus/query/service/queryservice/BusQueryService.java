@@ -149,4 +149,12 @@ public class BusQueryService {
         BusSidDTO busSidDTO = busBaseDataService.getBusSID(busLineNumberDTO);
         return busSidDTO.getSid();
     }
+
+    public List<String> queryBusStationLike(String busStationLike) {
+        return null;
+    }
+
+    public List<String> queryBusLineLike(String busLineLike) {
+        return null;
+    }
 }
