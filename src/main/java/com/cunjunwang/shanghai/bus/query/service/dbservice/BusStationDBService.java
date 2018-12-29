@@ -4,6 +4,9 @@ import com.cunjunwang.shanghai.bus.query.dao.BusStationMapper;
 import com.cunjunwang.shanghai.bus.query.model.po.BusStation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 /**
  * Created by CunjunWang on 2018-12-23.
@@ -38,5 +41,18 @@ public class BusStationDBService {
         }
         busStationMapper.insertSelective(newBusStation);
         return newBusStation.getId();
+    }
+
+
+    /**
+     * 根据站点名模糊查询
+     * @param busStationLike
+     * @return
+     */
+    public List<String> queryBusStationLike(String busStationLike) {
+        if(busStationLike == null || StringUtils.isEmpty(busStationLike)) {
+            return null;
+        }
+        return busStationMapper.queryBusStationLike(busStationLike);
     }
 }

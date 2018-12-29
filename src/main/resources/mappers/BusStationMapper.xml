@@ -33,6 +33,9 @@
         from bus_station
         where bus_station_name = #{busStationName, jdbcType=VARCHAR} and is_del = 0
     </select>
+    <select id="queryBusStationLike" resultType="java.lang.String">
+        select bus_station.bus_station_name from bus_station where bus_station_name like CONCAT('%', #{busStationLike, jdbcType=VARCHAR}, '%')
+    </select>
     <insert id="insert" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusStation">
         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
             SELECT LAST_INSERT_ID()

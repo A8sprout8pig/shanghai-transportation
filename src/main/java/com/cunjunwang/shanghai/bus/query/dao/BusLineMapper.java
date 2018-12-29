@@ -4,6 +4,8 @@ import com.cunjunwang.shanghai.bus.query.model.po.BusLine;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface BusLineMapper {
     int insert(BusLine record);
@@ -17,4 +19,6 @@ public interface BusLineMapper {
     int updateByPrimaryKey(BusLine record);
 
     BusLine selectByBusLineNumber(@Param("busLineNumber") String busLineNumber);
+
+    List<String> queryBusLineLike(@Param("busLineLike") String busLineLike);
 }

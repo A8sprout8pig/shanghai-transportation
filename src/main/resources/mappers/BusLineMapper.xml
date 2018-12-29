@@ -55,6 +55,9 @@
         from bus_line where bus_line = #{busLineNumber, jdbcType=VARCHAR}
         and is_del = 0
     </select>
+    <select id="queryBusLineLike" resultType="java.lang.String">
+        select bus_line from bus_line where bus_line like CONCAT(#{busLineLike, jdbcType=VARCHAR}, '%')
+    </select>
     <insert id="insert" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLine">
         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
             SELECT LAST_INSERT_ID()
