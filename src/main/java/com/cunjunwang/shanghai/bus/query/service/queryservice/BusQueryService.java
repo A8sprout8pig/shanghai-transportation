@@ -8,6 +8,8 @@ import com.cunjunwang.shanghai.bus.query.model.dto.*;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.bus.query.model.vo.BusDetailVO;
 import com.cunjunwang.shanghai.bus.query.service.dataservice.BusBaseDataService;
+import com.cunjunwang.shanghai.bus.query.service.dbservice.BusLineDBService;
+import com.cunjunwang.shanghai.bus.query.service.dbservice.BusStationDBService;
 import com.cunjunwang.shanghai.bus.query.util.HtmlParserUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,6 +40,12 @@ public class BusQueryService {
 
     @Autowired
     private BusBaseDataService busBaseDataService;
+
+    @Autowired
+    private BusLineDBService busLineDBService;
+
+    @Autowired
+    private BusStationDBService busStationDBService;
 
     @Value("${com.cunjunwang.shanghai.bus.query.getStationsUrl}")
     private String getStationsURL;
@@ -84,7 +92,7 @@ public class BusQueryService {
         String fullUrl = String.format(getStationsURL, sid, Constant.UP_GOING);
         String responseHtml = restTemplate.getForObject(fullUrl, String.class);
 
-        if (responseHtml == null || StringUtils.isEmpty(responseHtml)) {
+        if (responseHtml != null && !StringUtils.isEmpty(responseHtml)) {
             BusDetailVO busDetailVO = htmlParserUtil.getBusIntroInfo(responseHtml);
             busDetailVO.setLineNum(busLineNumber);
             busDetailVO.setBusDirectionType(Constant.DOUBLE_DIRECTION);
@@ -148,5 +156,23 @@ public class BusQueryService {
         busLineNumberDTO.setIdnum(busLineNumber);
         BusSidDTO busSidDTO = busBaseDataService.getBusSID(busLineNumberDTO);
         return busSidDTO.getSid();
+    }
+
+    /**
+     * 根据站点名模糊查询
+     * @param busStationLike
+     * @return
+     */
+    public List<String> queryBusStationLike(String busStationLike) {
+        return busStationDBService.queryBusStationLike(busStationLike);
+    }
+
+    /**
+     * 根据线路名模糊查询
+     * @param busLineLike
+     * @return
+     */
+    public List<String> queryBusLineLike(String busLineLike) {
+        return busLineDBService.queryBusLineLike(busLineLike);
     }
 }

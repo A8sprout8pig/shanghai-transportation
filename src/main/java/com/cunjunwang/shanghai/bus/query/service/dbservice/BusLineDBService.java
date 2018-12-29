@@ -4,6 +4,9 @@ import com.cunjunwang.shanghai.bus.query.dao.BusLineMapper;
 import com.cunjunwang.shanghai.bus.query.model.po.BusLine;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+import java.util.List;
 
 /**
  * Created by CunjunWang on 2018-12-21.
@@ -45,5 +48,12 @@ public class BusLineDBService {
         }
         busLineMapper.insertSelective(newBusLine);
         return newBusLine.getId();
+    }
+
+    public List<String> queryBusLineLike(String busLineLike) {
+        if(busLineLike == null || StringUtils.isEmpty(busLineLike)) {
+            return null;
+        }
+        return busLineMapper.queryBusLineLike(busLineLike);
     }
 }

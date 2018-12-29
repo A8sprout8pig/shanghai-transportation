@@ -55,5 +55,19 @@ public class BusinessController {
                 busQueryService.getLineStationList(busLineNumber));
     }
 
+    @RequestMapping(value = "/queryBusStationLike", method = RequestMethod.POST)
+    @ApiOperation(value = "模糊查询公交站点", notes = "模糊查询公交站点")
+    public ResultData<List<String>> queryBusStationLike(String busStationLike) {
+        return new ResultData<>(ResultData.SUCCESS, "", "模糊查询公交站点完成",
+                busQueryService.queryBusStationLike(busStationLike));
+    }
+
+    @RequestMapping(value = "/queryBusLineLike", method = RequestMethod.POST)
+    @ApiOperation(value = "模糊查询公交线路", notes = "模糊查询公交线路")
+    public ResultData<List<String>> queryBusLineLike(String busLineLike) {
+        return new ResultData<>(ResultData.SUCCESS, "", "模糊查询公交线路完成",
+                busQueryService.queryBusLineLike(busLineLike));
+    }
+
 
 }
