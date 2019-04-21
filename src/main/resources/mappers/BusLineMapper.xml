@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cunjunwang.shanghai.bus.query.dao.BusLineMapper">
-    <resultMap id="BaseResultMap" type="com.cunjunwang.shanghai.bus.query.model.po.BusLine">
+<mapper namespace="com.cunjunwang.shanghai.transportation.dao.BusLineMapper">
+    <resultMap id="BaseResultMap" type="com.cunjunwang.shanghai.transportation.model.po.BusLine">
         <id column="id" jdbcType="BIGINT" property="id"/>
         <result column="bus_line" jdbcType="VARCHAR" property="busLine"/>
         <result column="up_going_start_station" jdbcType="VARCHAR" property="upGoingStartStation"/>
@@ -58,7 +58,7 @@
     <select id="queryBusLineLike" resultType="java.lang.String">
         select bus_line from bus_line where bus_line like CONCAT(#{busLineLike, jdbcType=VARCHAR}, '%')
     </select>
-    <insert id="insert" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLine">
+    <insert id="insert" parameterType="com.cunjunwang.shanghai.transportation.model.po.BusLine">
         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -80,7 +80,7 @@
         #{busComment,jdbcType=VARCHAR}, #{isDel,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},
         #{updateTime,jdbcType=TIMESTAMP})
     </insert>
-    <insert id="insertSelective" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLine">
+    <insert id="insertSelective" parameterType="com.cunjunwang.shanghai.transportation.model.po.BusLine">
         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -200,7 +200,7 @@
             </if>
         </trim>
     </insert>
-    <update id="updateByPrimaryKeySelective" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLine">
+    <update id="updateByPrimaryKeySelective" parameterType="com.cunjunwang.shanghai.transportation.model.po.BusLine">
         update bus_line
         <set>
             <if test="busLine != null">
@@ -260,7 +260,7 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLine">
+    <update id="updateByPrimaryKey" parameterType="com.cunjunwang.shanghai.transportation.model.po.BusLine">
         update bus_line
         set bus_line                    = #{busLine,jdbcType=VARCHAR},
             up_going_start_station      = #{upGoingStartStation,jdbcType=VARCHAR},

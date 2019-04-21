@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.cunjunwang</groupId>
-    <artifactId>shanghai-bus-query</artifactId>
+    <artifactId>shanghai-transportation</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>shanghai-bus-query</name>
-    <description>Shanghai bus query app</description>
+    <name>shanghai-transportation</name>
+    <description>Shanghai transportation query app</description>
 
     <properties>
         <java.version>1.8</java.version>

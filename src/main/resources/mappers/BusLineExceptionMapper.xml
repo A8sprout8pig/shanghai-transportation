@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.cunjunwang.shanghai.bus.query.dao.BusLineExceptionMapper">
-    <resultMap id="BaseResultMap" type="com.cunjunwang.shanghai.bus.query.model.po.BusLineException">
+<mapper namespace="com.cunjunwang.shanghai.transportation.dao.BusLineExceptionMapper">
+    <resultMap id="BaseResultMap" type="com.cunjunwang.shanghai.transportation.model.po.BusLineException">
         <id column="id" jdbcType="BIGINT" property="id"/>
         <result column="bus_line" jdbcType="VARCHAR" property="busLine"/>
         <result column="exception_reason" jdbcType="VARCHAR" property="exceptionReason"/>
@@ -41,7 +41,7 @@
         from bus_line bl
         where is_del = 0
     </select>
-    <insert id="insert" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLineException">
+    <insert id="insert" parameterType="com.cunjunwang.shanghai.transportation.model.po.BusLineException">
         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -52,7 +52,7 @@
         #{createTime,jdbcType=TIMESTAMP}, #{isDel,jdbcType=INTEGER}, #{updateTime,jdbcType=TIMESTAMP}
         )
     </insert>
-    <insert id="insertSelective" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLineException">
+    <insert id="insertSelective" parameterType="com.cunjunwang.shanghai.transportation.model.po.BusLineException">
         <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
             SELECT LAST_INSERT_ID()
         </selectKey>
@@ -95,7 +95,7 @@
         </trim>
     </insert>
     <update id="updateByPrimaryKeySelective"
-            parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLineException">
+            parameterType="com.cunjunwang.shanghai.transportation.model.po.BusLineException">
         update bus_line_exception
         <set>
             <if test="busLine != null">
@@ -116,7 +116,7 @@
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
-    <update id="updateByPrimaryKey" parameterType="com.cunjunwang.shanghai.bus.query.model.po.BusLineException">
+    <update id="updateByPrimaryKey" parameterType="com.cunjunwang.shanghai.transportation.model.po.BusLineException">
         update bus_line_exception
         set bus_line         = #{busLine,jdbcType=VARCHAR},
             exception_reason = #{exceptionReason,jdbcType=VARCHAR},
