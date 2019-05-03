@@ -3,7 +3,7 @@ package com.cunjunwang.shanghai.transportation.controller.bus;
 import com.cunjunwang.shanghai.transportation.entity.ResultData;
 import com.cunjunwang.shanghai.transportation.model.dto.*;
 import com.cunjunwang.shanghai.transportation.model.vo.BusCurrentStopVO;
-import com.cunjunwang.shanghai.transportation.service.dataservice.BusBaseDataService;
+import com.cunjunwang.shanghai.transportation.service.dataService.BusBaseDataService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;

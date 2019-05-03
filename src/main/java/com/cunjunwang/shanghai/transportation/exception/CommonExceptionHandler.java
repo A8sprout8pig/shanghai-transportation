@@ -31,9 +31,9 @@ public class CommonExceptionHandler {
     public ResultData handle(Exception exception) {
         String errMsg = null;
         ResultData resultData = null;
-        if (exception instanceof ShanghaiBusException) {
+        if (exception instanceof ShanghaiTransportationException) {
             // 通用异常处理方法
-            ShanghaiBusException e = (ShanghaiBusException) exception;
+            ShanghaiTransportationException e = (ShanghaiTransportationException) exception;
             errMsg = String.format("ErrCode[%s], ErrMsg[%s]", e.getErrCode(), e.getErrMsg());
             resultData = new ResultData<>(ResultData.FAILURE, e.getErrCode(), errMsg, e.getMessage());
         } else if (exception instanceof MethodArgumentNotValidException) {
@@ -46,8 +46,8 @@ public class CommonExceptionHandler {
             resultData = new ResultData<>(ResultData.FAILURE, ErrConstant.INVALID_DATA_FILED, "数据校验失败", stringBuffer);
         } else {
             //未定义的异常
-            logger.error("Unexcepted Error, 未知异常!", exception);
-            resultData = new ResultData<>(ResultData.FAILURE, ErrConstant.UNKNOWN_ERR, "Unexcepted Error, 未知异常!", exception.getMessage());
+            logger.error("Unexpected Error, 未知异常!", exception);
+            resultData = new ResultData<>(ResultData.FAILURE, ErrConstant.UNKNOWN_ERR, "Unexpected Error, 未知异常!", exception.getMessage());
         }
         return resultData;
     }

@@ -1,9 +1,9 @@
-package com.cunjunwang.shanghai.transportation.service.dataservice;
+package com.cunjunwang.shanghai.transportation.service.dataService;
 
 import com.cunjunwang.shanghai.transportation.constant.Constant;
 import com.cunjunwang.shanghai.transportation.constant.ErrConstant;
 import com.cunjunwang.shanghai.transportation.constant.ErrMsgConstant;
-import com.cunjunwang.shanghai.transportation.exception.ShanghaiBusException;
+import com.cunjunwang.shanghai.transportation.exception.ShanghaiTransportationException;
 import com.cunjunwang.shanghai.transportation.model.dto.BatchSaveBusInfoDTO;
 import com.cunjunwang.shanghai.transportation.model.dto.BatchSaveStationInfoDTO;
 import com.cunjunwang.shanghai.transportation.model.po.BusLineException;
@@ -214,7 +214,7 @@ public class MainDataService {
         List<String> validBusLineNumberList = busLinePersistExceptionDBService.selectAllValidLineNumber();
         if (validBusLineNumberList == null || validBusLineNumberList.isEmpty()) {
             logger.error("不存在有效的公交线路信息!");
-            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
         }
         logger.info("线路数: {}", validBusLineNumberList.size());
         // 遍历所有公交线路列表

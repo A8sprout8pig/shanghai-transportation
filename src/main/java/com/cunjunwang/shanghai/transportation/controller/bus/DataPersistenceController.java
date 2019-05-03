@@ -3,7 +3,7 @@ package com.cunjunwang.shanghai.transportation.controller.bus;
 import com.cunjunwang.shanghai.transportation.entity.ResultData;
 import com.cunjunwang.shanghai.transportation.model.dto.BatchSaveBusInfoDTO;
 import com.cunjunwang.shanghai.transportation.model.vo.BusLineDataVO;
-import com.cunjunwang.shanghai.transportation.service.dataservice.BusDataPersistenceService;
+import com.cunjunwang.shanghai.transportation.service.dataService.BusDataPersistenceService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;

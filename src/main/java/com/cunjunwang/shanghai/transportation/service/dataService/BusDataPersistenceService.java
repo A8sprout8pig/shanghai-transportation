@@ -1,9 +1,9 @@
-package com.cunjunwang.shanghai.transportation.service.dataservice;
+package com.cunjunwang.shanghai.transportation.service.dataService;
 
 import com.cunjunwang.shanghai.transportation.constant.Constant;
 import com.cunjunwang.shanghai.transportation.constant.ErrConstant;
 import com.cunjunwang.shanghai.transportation.constant.ErrMsgConstant;
-import com.cunjunwang.shanghai.transportation.exception.ShanghaiBusException;
+import com.cunjunwang.shanghai.transportation.exception.ShanghaiTransportationException;
 import com.cunjunwang.shanghai.transportation.model.dto.*;
 import com.cunjunwang.shanghai.transportation.model.po.BusLine;
 import com.cunjunwang.shanghai.transportation.model.po.BusStation;
@@ -58,7 +58,7 @@ public class BusDataPersistenceService {
 
         if (lineNumber == null) {
             logger.error("线路参数为空");
-            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
         }
 
         logger.info("开始查询公交[{}]持久化信息", lineNumber);
@@ -70,7 +70,7 @@ public class BusDataPersistenceService {
             return busLineDataVO;
         } else {
             logger.warn("线路信息[{}]不存在", lineNumber);
-            throw new ShanghaiBusException(ErrConstant.UNKONWN_BUS_LINE,
+            throw new ShanghaiTransportationException(ErrConstant.UNKONWN_BUS_LINE,
                     String.format(ErrMsgConstant.UNKONWN_BUS_LINE_MSG, lineNumber));
         }
     }
@@ -85,7 +85,7 @@ public class BusDataPersistenceService {
 
         if (lineNumber == null) {
             logger.error("线路参数为空");
-            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
         }
 
         logger.info("开始持久化存储线路[{}]信息", lineNumber);
@@ -93,7 +93,7 @@ public class BusDataPersistenceService {
         BusLine originBusLine = busLineDBService.selectExactByBusLineNumber(lineNumber);
         if (originBusLine != null) {
             logger.info("数据库中线路[{}]信息已存在", lineNumber);
-            throw new ShanghaiBusException(ErrConstant.DUPLICATE_BUS_LINE_INFO_ERR,
+            throw new ShanghaiTransportationException(ErrConstant.DUPLICATE_BUS_LINE_INFO_ERR,
                     String.format(ErrMsgConstant.DUPLICATE_BUS_LINE_INFO_ERR_MSG, lineNumber));
         }
 
@@ -112,7 +112,7 @@ public class BusDataPersistenceService {
         List<BusStationDTO> upGoingStations = busBaseDataService.getBusStationsBySid(getUpGoingBusStationsDTO);
         if (upGoingStations == null || upGoingStations.isEmpty()) {
             logger.warn("线路信息[{}]不存在", lineNumber);
-            throw new ShanghaiBusException(ErrConstant.UNKONWN_BUS_LINE,
+            throw new ShanghaiTransportationException(ErrConstant.UNKONWN_BUS_LINE,
                     String.format(ErrMsgConstant.UNKONWN_BUS_LINE_MSG, lineNumber));
         }
 
@@ -155,7 +155,7 @@ public class BusDataPersistenceService {
             return true;
         } catch (Exception e) {
             logger.error("持久化存储线路[{}]信息失败", lineNumber, e);
-            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
         }
 
     }
@@ -170,13 +170,13 @@ public class BusDataPersistenceService {
 
         if (batchSaveBusInfoDTO == null) {
             logger.error("批量存储公交基础信息失败, 未传入有效数据!");
-            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
         }
 
         List<String> lineNumbers = batchSaveBusInfoDTO.getLineNumbers();
         if (lineNumbers == null || lineNumbers.isEmpty()) {
             logger.error("批量存储公交基础信息失败, 传入列表无效!");
-            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
         }
 
         logger.info("开始批量存储公交基础信息, 共[{}]条数据", lineNumbers.size());
@@ -221,12 +221,12 @@ public class BusDataPersistenceService {
         catch (Exception e) {
             logger.warn("处理异常信息失败, 线路[{}]", busLineNumber);
             // 若异常是因为该线路已经存储过, 不重新添加记录
-            if (e instanceof ShanghaiBusException && !String.format(ErrMsgConstant.DUPLICATE_BUS_LINE_INFO_ERR_MSG, busLineNumber)
-                    .equals(((ShanghaiBusException) e).getErrMsg())) {
+            if (e instanceof ShanghaiTransportationException && !String.format(ErrMsgConstant.DUPLICATE_BUS_LINE_INFO_ERR_MSG, busLineNumber)
+                    .equals(((ShanghaiTransportationException) e).getErrMsg())) {
                 // 封装参数
                 BusLineDataExceptionDTO busLineDataExceptionDTO = new BusLineDataExceptionDTO();
                 busLineDataExceptionDTO.setBusLineNumber(busLineNumber);
-                busLineDataExceptionDTO.setExceptionReason(((ShanghaiBusException) e).getErrMsg());
+                busLineDataExceptionDTO.setExceptionReason(((ShanghaiTransportationException) e).getErrMsg());
                 // 发送通知
                 busDataPersistExceptionNotifyService.forwardBusLineDataException(busLineDataExceptionDTO);
             }
@@ -248,7 +248,7 @@ public class BusDataPersistenceService {
             List<String> busStationNameList = busQueryService.getLineStationList(busLineNumber);
             if (busStationNameList == null || busStationNameList.isEmpty()) {
                 logger.error("不存在有效的公交线路信息!");
-                throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+                throw new ShanghaiTransportationException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
             }
             for (String busStationName : busStationNameList) {
                 Boolean result = this.saveBusStationInfoOrNotifyException(busStationName);

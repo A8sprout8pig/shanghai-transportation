@@ -2,7 +2,7 @@ package com.cunjunwang.shanghai.transportation.util;
 
 import com.cunjunwang.shanghai.transportation.constant.Constant;
 import com.cunjunwang.shanghai.transportation.constant.ErrConstant;
-import com.cunjunwang.shanghai.transportation.exception.ShanghaiBusException;
+import com.cunjunwang.shanghai.transportation.exception.ShanghaiTransportationException;
 import com.cunjunwang.shanghai.transportation.model.dto.BusDirectionInfoDTO;
 import com.cunjunwang.shanghai.transportation.model.dto.BusStationDTO;
 import com.cunjunwang.shanghai.transportation.model.vo.BusDetailVO;
@@ -66,7 +66,7 @@ public class HtmlParserUtil {
         Elements elements = body.getElementsByClass("upgoing");
         if (elements == null || elements.isEmpty()) {
             logger.error("上行方向信息不存在!");
-            throw new ShanghaiBusException(ErrConstant.UNKONWN_BUS_LINE, "线路信息不存在!");
+            throw new ShanghaiTransportationException(ErrConstant.UNKONWN_BUS_LINE, "线路信息不存在!");
         }
         Element upGoing = elements.get(0);
         Element downGoing = elements.get(1);

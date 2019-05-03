@@ -3,11 +3,11 @@ package com.cunjunwang.shanghai.transportation.service.queryservice;
 import com.cunjunwang.shanghai.transportation.constant.Constant;
 import com.cunjunwang.shanghai.transportation.constant.ErrConstant;
 import com.cunjunwang.shanghai.transportation.constant.ErrMsgConstant;
-import com.cunjunwang.shanghai.transportation.exception.ShanghaiBusException;
+import com.cunjunwang.shanghai.transportation.exception.ShanghaiTransportationException;
 import com.cunjunwang.shanghai.transportation.model.dto.*;
 import com.cunjunwang.shanghai.transportation.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.transportation.model.vo.BusDetailVO;
-import com.cunjunwang.shanghai.transportation.service.dataservice.BusBaseDataService;
+import com.cunjunwang.shanghai.transportation.service.dataService.BusBaseDataService;
 import com.cunjunwang.shanghai.transportation.service.dbservice.BusLineDBService;
 import com.cunjunwang.shanghai.transportation.service.dbservice.BusStationDBService;
 import com.cunjunwang.shanghai.transportation.util.HtmlParserUtil;
@@ -100,7 +100,7 @@ public class BusQueryService {
             return busDetailVO;
         } else {
             logger.error("网络请求错误");
-            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
         }
     }
 
@@ -112,7 +112,7 @@ public class BusQueryService {
     public List<String> getLineStationList(String busLineNumber) {
         if(busLineNumber == null) {
             logger.error("获取线路所有站点名，线路名无效");
-            throw new ShanghaiBusException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.INVALID_PARAMETER, ErrMsgConstant.INVALID_PARAMETER_MSG);
         }
         logger.info("开始查询线路[{}]所有站点列表", busLineNumber);
 

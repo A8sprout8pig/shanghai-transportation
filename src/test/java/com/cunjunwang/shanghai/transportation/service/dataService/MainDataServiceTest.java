@@ -1,4 +1,4 @@
-package com.cunjunwang.shanghai.transportation.service.dataservice;
+package com.cunjunwang.shanghai.transportation.service.dataService;
 
 import com.cunjunwang.shanghai.transportation.ShanghaiTransportationApplicationTests;
 import org.junit.Test;

@@ -18,4 +18,6 @@ public class Constant {
     public static final String SINGLE_DIRECTION = "单向线路";
 
     public static final String CIRCULAR_DIRECTION = "环线";
+
+    public static final String LOGGER = "LOGGER";
 }

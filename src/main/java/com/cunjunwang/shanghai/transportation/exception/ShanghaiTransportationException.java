@@ -11,15 +11,15 @@ import lombok.*;
 @ToString
 @NoArgsConstructor
 @EqualsAndHashCode
-public class ShanghaiBusException extends RuntimeException {
+public class ShanghaiTransportationException extends RuntimeException {
 
     private String errCode;
 
     private String errMsg;
 
-    public static String ERR_PREFIX = "SHBUS-";
+    public static String ERR_PREFIX = "SH_TRANSPORTATION-";
 
-    public ShanghaiBusException(String errCode, String errMsg){
+    public ShanghaiTransportationException(String errCode, String errMsg){
         this.errCode = ERR_PREFIX + errCode;
         this.errMsg = errMsg;
     }

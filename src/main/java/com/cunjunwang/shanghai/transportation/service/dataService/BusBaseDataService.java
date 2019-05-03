@@ -1,11 +1,11 @@
-package com.cunjunwang.shanghai.transportation.service.dataservice;
+package com.cunjunwang.shanghai.transportation.service.dataService;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.cunjunwang.shanghai.transportation.constant.ErrConstant;
 import com.cunjunwang.shanghai.transportation.constant.ErrMsgConstant;
-import com.cunjunwang.shanghai.transportation.exception.ShanghaiBusException;
+import com.cunjunwang.shanghai.transportation.exception.ShanghaiTransportationException;
 import com.cunjunwang.shanghai.transportation.model.dto.*;
 import com.cunjunwang.shanghai.transportation.model.vo.BusCurrentStopVO;
 import com.cunjunwang.shanghai.transportation.util.HtmlParserUtil;
@@ -79,7 +79,7 @@ public class BusBaseDataService {
             return busSidDTO;
         } else {
             logger.warn("请求结果为空");
-            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
         }
     }
 
@@ -99,7 +99,7 @@ public class BusBaseDataService {
         String responseHtml = restTemplate.getForObject(fullUrl, String.class);
         if(responseHtml == null || StringUtils.isEmpty(responseHtml)) {
             logger.warn("请求结果为空");
-            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
         }
         // logger.info("上海发布平台响应参数[{}]", responseHtml);
         return htmlParserUtil.getStationList(responseHtml);
@@ -128,7 +128,7 @@ public class BusBaseDataService {
 
         if(response == null || StringUtils.isEmpty(response)) {
             logger.warn("请求结果为空");
-            throw new ShanghaiBusException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
+            throw new ShanghaiTransportationException(ErrConstant.HTTP_REQUEST_ERR, ErrMsgConstant.HTTP_REQUEST_ERR_MSG);
         }
 
         logger.info("上海发布平台响应参数: {}", JSON.parse(response));
