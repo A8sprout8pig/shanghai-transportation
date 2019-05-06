@@ -6,6 +6,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClients;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +30,7 @@ public class AntiCrawlHandler {
      * @param url url地址
      * @return pdf文件对象
      */
-    public String handleRequest(String url) {
+    public String handleGetRequest(String url) {
         try {
             HttpClient client = HttpClients.createDefault();
             HttpGet getRequest = new HttpGet(url);
@@ -37,6 +39,7 @@ public class AntiCrawlHandler {
 
             String __jsluid = getJsluid(response);
             String body = getResponseBodyAsString(response);
+            logger.info("Body: {}", body);
             String __jsl_clearance = getJslClearance(body);
             getRequest = new HttpGet(url);
             getRequest.setHeader("cookie", __jsluid + "; " + __jsl_clearance);
@@ -50,13 +53,41 @@ public class AntiCrawlHandler {
     }
 
     /**
+     * 传入请求的URL, 解析返回数据
+     *
+     * @param url url地址
+     * @return pdf文件对象
+     */
+    public String handlePostRequest(String url) {
+        try {
+            HttpClient client = HttpClients.createDefault();
+            HttpPost postRequest = new HttpPost(url);
+            setHeader(postRequest);
+            HttpResponse response = client.execute(postRequest);
+
+            String __jsluid = getJsluid(response);
+            String body = getResponseBodyAsString(response);
+            logger.info("Body: {}", body);
+            String __jsl_clearance = getJslClearance(body);
+            postRequest = new HttpPost(url);
+            postRequest.setHeader("cookie", __jsluid + "; " + __jsl_clearance);
+            setHeader(postRequest);
+            response = client.execute(postRequest);
+            return getResponseBodyAsString(response);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
      * 给HttpGet设置一些必要的header
      *
-     * @param get 通过get方法访问pdf资源
+     * @param request 通过get方法访问pdf资源
      */
-    private static void setHeader(HttpGet get) {
-        get.setHeader("Upgrade-Insecure-Requests", "1");
-        get.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36");
+    private static void setHeader(HttpUriRequest request) {
+        request.setHeader("Upgrade-Insecure-Requests", "1");
+        request.setHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36");
     }
 
     /**
